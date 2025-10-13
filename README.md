@@ -12,8 +12,6 @@ Through collaboration, openness, and shared stewardship, we aim to advance a new
 The Complex Risk Collective is a 'research group' for the future--a new mode of scientific collaboration capable of responding to the problems of the 21st century. 
 
 
-# 
-
 
 # What you will find here 
 
@@ -24,7 +22,7 @@ The Complex Risk Collective is a 'research group' for the future--a new mode of 
 | **Data and Analytics**       | Curated datasets, (pre)processing scripts, and analysis workflows       |  |
 | **Decision Support Tools**   | Visualization, modeling, and early-warning prototypes              |              |
 | **Analysis Working Groups**   | Forums for research interactions around a shared dataset or datasets for a vital topic requiring a plural research group and for creating [FAIR](https://www.nature.com/articles/sdata201618) risk science resources to improve risk science understanding and disaster risk reduction             | `AWG-context-aware-risk-metrics`, `AWG-interconnected-infrastructure`          |
-| **Community and Governance** | Guidance on collaboration, ethics, and commons governance (visit (Contributing)[]          |              |
+| **Community and Governance** | Guidance on collaboration, ethics, and commons governance (visit [Contributing](https://github.com/Complex-Risk-Collective/.github/CONTRIBUTING.md)          |              |
 | **Educational Resources**          |  | `awesome-multihazard`, `complex-risk-science-seminars`        |
 
 
@@ -33,14 +31,15 @@ The Complex Risk Collective is a 'research group' for the future--a new mode of 
 
 We welcome contributions from a wide collectivity: scientists, engineers, policymakers, community practitioners.
 
-Please read our [Contributing Guidelines]() and [Code of Conduct]() (links forthcoming) before participating. 
+Please read our [Contributing Guidelines](https://github.com/Complex-Risk-Collective/.github/CONTRIBUTING.md) and [Code of Conduct]() (links forthcoming) before participating. 
 
 Contributions can include:
 - New datasets or analytic workflows
-- New repositories representing kindred projects
+- New repositories representing kindred projects or contributions to existing repositories
 - Documentation and visualization tools
 - Policy translation and decision-support frameworks
 - Governance and collective action frameworks/updates
+- Discussions and conversations
 - Case studies or [storylines](https://link.springer.com/article/10.1007/s10584-018-2317-9) or [imaginaries](https://link.springer.com/article/10.1007/s13280-021-01544-8)
 
 
@@ -51,7 +50,7 @@ Our work is guided by the following shared commitments:
 - Responsivity - Identify methods that permit individuals and communities to create practicable knowledge amongst irreducible extreme uncertainty.
 - Openness – Knowledge and tools are shared as public goods.
 - Participation – Plural communities co-create insights and solutions.
-- Reflexivity – We design with awareness of uncertainty and systemic feedback.
+- Reflexivity – We design with awareness of uncertainty and systemic feedback and with knowledge of our own activities and interactions. 
 - Ongoing - We resist hardened ideologies and strive to sustain an open and capacious conversation (dialectic) that can open new possibility and lead to adaptive capacity. 
 - Commons Governance – Stewardship replaces ownership in sustaining shared capacity.
 - Flourishing – Science and technology are means toward societal and ecological well-being.
