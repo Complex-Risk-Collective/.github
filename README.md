@@ -22,7 +22,7 @@ The Complex Risk Collective is a 'research group' for the future--a new mode of 
 | **Data and Analytics**       | Curated datasets, (pre)processing scripts, and analysis workflows       |  |
 | **Decision Support Tools**   | Visualization, modeling, and early-warning prototypes              |              |
 | **Analysis Working Groups**   | Forums for research interactions around a shared dataset or datasets for a vital topic requiring a plural research group and for creating [FAIR](https://www.nature.com/articles/sdata201618) risk science resources to improve risk science understanding and disaster risk reduction             | `AWG-context-aware-risk-metrics`, `AWG-interconnected-infrastructure`          |
-| **Community and Governance** | Guidance on collaboration, ethics, and commons governance (visit [Contributing](https://github.com/Complex-Risk-Collective/.github/CONTRIBUTING.md)          |              |
+| **Community and Governance** | Guidance on collaboration, ethics, and commons governance (visit [Contributing](https://github.com/Complex-Risk-Collective/.github/blob/main/CONTRIBUTING.md))          |              |
 | **Educational Resources**          |  | `awesome-multihazard`, `complex-risk-science-seminars`        |
 
 
@@ -31,7 +31,7 @@ The Complex Risk Collective is a 'research group' for the future--a new mode of 
 
 We welcome contributions from a wide collectivity: scientists, engineers, policymakers, community practitioners.
 
-Please read our [Contributing Guidelines](https://github.com/Complex-Risk-Collective/.github/CONTRIBUTING.md) and [Code of Conduct]() (links forthcoming) before participating. 
+Please read our [Contributing Guidelines](https://github.com/Complex-Risk-Collective/.github/blob/main/CONTRIBUTING.md)) and [Code of Conduct]() (link forthcoming) before participating. 
 
 Contributions can include:
 - New datasets or analytic workflows
