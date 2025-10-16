@@ -48,7 +48,7 @@ Reproducibility and Rigor – Code, data, and documentation should support repli
 
 3. Creating New Repositories or Projects. If you wish to initiate a new repository or subproject:
     - Ensure the project aligns with the mission of the organization (multi-hazard, complex risk, or community capacity-building).
-    - Draft a short project proposal in the `community-and-governance` repository (template provided). Include:
+    - Draft a short project proposal in the `community-and-governance` repository (template [provided](https://github.com/Complex-Risk-Collective/.github/blob/main/community-and-governance/projects/NEW_PROJECT_TEMPLATE.md)). Include:
         - Project goals and scope
         - Intended contributors
         - Dependencies or links to existing repos
