@@ -85,7 +85,7 @@ Others will be invited to participate in our team Slack as appropriate; we welco
 ## 9. Review & Approval
 - **Submitted to:** `community-and-governance/projects/` repository  
 - **Reviewed by:** Core maintainers or governance team  
-- **Approval status:** _Pending / Approved / Needs Revision_  
-- **Date of approval:**  
+- **Approval status:** Approved 
+- **Date of approval:** 10/20/2025 
 
 
