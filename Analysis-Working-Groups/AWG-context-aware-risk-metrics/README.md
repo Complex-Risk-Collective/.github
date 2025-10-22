@@ -7,7 +7,7 @@ _Focusing on hybrid methodologies (qualitative + quantitative) to define and mea
 This idea and group emerged from the [June 9 Boston-Area Complex Risk Science: Exploring new frontiers and a new community for understanding risk](https://ai.northeastern.edu/event/boston-area-complex-risk-science-exploring-new-frontiers-and-a-new-community-for-understanding-risk) (report [here](https://zenodo.org/records/17122711))
 
 Areas of emphasis include: 
-- Facilitated exchange on standard and open data (modeled after Sylvain Costes’ NASA AWGs)
+- Facilitated exchange on standard and open data (modeled after [Sylvain Costes’ NASA AWGs](https://www.nasa.gov/osdr-working-groups-awg-charter/))
 - Scientific journal articles (not white papers unless there is a perceived gap in the perspectives)
 - Connection between social and infrastructural vulnerability
 - Where quantitative analyses are possible/robust and where qualitative approaches are required (when and where to transition between them for a given project focus)
