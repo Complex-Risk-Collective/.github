@@ -1,0 +1,31 @@
+name: multi-haz
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - fiona
+  - gdal
+  - geopandas
+  - h5netcdf
+  - matplotlib
+  - netcdf4
+  - networkx
+  - numpy
+  - pandas
+  - pgmpy
+  - proj-data
+  - pyogrio
+  - pyproj
+  - python=3.10
+  - scikit-learn
+  - shapely
+  - xarray
+  - spyder
+  - opt_einsum
+  - pyro-ppl
+  - seaborn
+  - seaborn-base
+  - eccodes
+  - cfgrib
+  - pygrib
+
