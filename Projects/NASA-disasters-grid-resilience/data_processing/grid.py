@@ -43,7 +43,7 @@ class AnalysisGridTemplate:
         
         # Load or create grid
         try:
-            self.grid = xr.open_dataset(grid_file)
+            self.grid = xr.open_dataset(grid_file).rio.write_crs(f"EPSG:{epsg}")
             print(f"Loaded existing grid: {grid_file}")
         except FileNotFoundError:
             print(f"Creating new {res_km} km grid in EPSG:{epsg} from lat/lon bounds")
