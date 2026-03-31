@@ -15,6 +15,7 @@ from grid import AnalysisGridTemplate
 # ------------------------
 
 PATH = "/mnt/data1/MultiHazard/"
+OUT_REL_PATH = "data/daily/firms_fire/"
 
 FIRES_CSV = [
     "/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_J1V-C2_731498.csv",
@@ -308,7 +309,7 @@ for day in unique_days:
     if ds_day.sizes.get("time", 0) == 0:
         continue
 
-    out_path = f"{PATH}/fires_analysis_grid_{day_str}.nc"
+    out_path = f"{PATH}/{OUT_REL_PATH}/fires_analysis_grid_{day_str}.nc"
     ds_day.to_netcdf(out_path, encoding=encoding)
     print("Saved", out_path)
 
