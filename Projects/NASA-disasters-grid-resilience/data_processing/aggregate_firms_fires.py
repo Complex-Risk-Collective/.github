@@ -125,6 +125,9 @@ fires = fires[    (fires.geometry.x >= lon_bounds[0]) & (fires.geometry.x <= lon
 ]
 
 
+fires_5070 = fires.to_crs(f"EPSG:{grid_template.epsg}")
+fires_5070 = fires_5070[np.isfinite(fires_5070.geometry.x) & np.isfinite(fires_5070.geometry.y)].copy()
+
 x_centers = grid_template.grid.coords["x"].values
 y_centers = grid_template.grid.coords["y"].values
 ny, nx = len(y_centers), len(x_centers)
@@ -182,9 +185,9 @@ for gid, sub in grid_hourly.groupby("grid_id"):
     sub = sub.reindex(full_time)
     sub["grid_id"] = gid
     # If you want last-observation-carried-forward, use ffill():
-    # sub["frp"] = sub["frp"].ffill()
+    sub["frp"] = sub["frp"].ffill()
     # If you prefer "0 when no fire detected":
-    sub["frp"] = sub["frp"].fillna(0.0)
+    #sub["frp"] = sub["frp"].fillna(0.0)
     sub = sub.reset_index().rename(columns={"index": "hour_ts"})
     filled_list.append(sub)
 
