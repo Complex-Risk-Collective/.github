@@ -1,0 +1,4 @@
+source,sum,count,missing,coverage_pct
+space_weather,677,731,54,92.61285909712723
+terrestrial_weather,731,731,0,100.0
+wildfire,731,731,0,100.0

@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: xrgrib
+Version: 0.1.0
+Summary: A local research backend for Xarray
+Requires-Python: >=3.9
+Requires-Dist: xarray
+Requires-Dist: eccodes

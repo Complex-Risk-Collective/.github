@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xrgrib"
+version = "0.1.0"
+description = "A local research backend for Xarray"
+requires-python = ">=3.9"
+dependencies = [
+    "xarray",
+    "eccodes",
+]
+
+[project.entry-points."xarray.backends"]
+xrgrib = "xrgrib.backend:XrgribBackend"
+
+# Explicitly guide the build system to find your package code
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

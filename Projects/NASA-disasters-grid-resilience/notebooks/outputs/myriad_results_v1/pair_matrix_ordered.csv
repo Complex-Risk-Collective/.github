@@ -1,0 +1,8 @@
+hazard_1,extreme_cold,extreme_heat,extreme_precip,extreme_wind,extreme_wind_era5,space_weather_extreme,wildfire
+extreme_cold,0,1866,1828,1873,79,6576,67
+extreme_heat,1613,0,2552,2625,142,6716,105
+extreme_precip,3539,4349,0,3388,198,14789,112
+extreme_wind,2608,2301,1592,0,158,6429,28
+extreme_wind_era5,75,62,90,65,0,161,0
+space_weather_extreme,2604,3805,2798,2008,83,0,51
+wildfire,214,345,131,84,0,686,0

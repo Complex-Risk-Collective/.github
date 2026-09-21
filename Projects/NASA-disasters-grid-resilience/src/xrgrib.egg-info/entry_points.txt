@@ -1,0 +1,2 @@
+[xarray.backends]
+xrgrib = xrgrib.backend:XrgribBackend

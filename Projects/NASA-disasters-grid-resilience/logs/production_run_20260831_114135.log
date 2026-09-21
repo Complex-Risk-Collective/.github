@@ -1,0 +1,7 @@
+[2026-08-31 11:41:35,587] INFO: ================================================================================
+[2026-08-31 11:41:35,587] INFO: PRODUCTION PIPELINE START: 2024-2025 Full-Period Analysis
+[2026-08-31 11:41:35,587] INFO: ================================================================================
+[2026-08-31 11:41:36,556] INFO: ✓ Core dependencies imported
+[2026-08-31 11:41:36,556] INFO: Step 1/5: Loading production thresholds and masks...
+[2026-08-31 11:41:36,556] ERROR: Step 1 FAILED: Thresholds not found: /Users/ryanmc/Documents/Complex_Risk_Science/dev/Complex-Risk-Collective/.github/Projects/NASA-disasters-grid-resilience/output/production/v2_conditioned_2024_2025/conditioned_thresholds.nc
+[2026-08-31 11:41:36,557] INFO: Cannot proceed without thresholds and masks. Exiting.

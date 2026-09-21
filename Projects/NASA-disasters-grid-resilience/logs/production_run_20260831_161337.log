@@ -1,0 +1,116 @@
+[2026-08-31 16:13:37,171] ======================================================================
+[2026-08-31 16:13:37,171] PRODUCTION PIPELINE START: 2024-01-01 to 2025-12-31 (full period)
+[2026-08-31 16:13:37,171] ======================================================================
+[2026-08-31 16:13:37,171] Time window: 2024-01-01 to 2025-12-31
+[2026-08-31 16:13:37,171] Output directory: /Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/MYRIAD_events_output/production/myriad_conus_20240101_20251231
+[2026-08-31 16:13:37,171] Hazards in scope: wildfire, extreme_heat, extreme_cold, extreme_wind, extreme_precip, space_weather_extreme, extreme_wind_era5
+[2026-08-31 16:13:37,171] Excluded (v2 data-quality issues):
+[2026-08-31 16:13:37,171]   hail: MESH/MAXSIZE unusable: MAXSIZE all-missing, MESH sentinel-contaminated and diluted by 50 km mean binning
+[2026-08-31 16:13:37,171]   lightning: NLDN density has no positive values in the holdings (max exactly 0.0)
+[2026-08-31 16:13:37,171]   drought_proxy: 15th percentile of an ~87%-zero hourly field is degenerate; produced zero events
+[2026-08-31 16:13:37,172] ======================================================================
+[2026-08-31 16:13:37,172] Step 1/6: Building file manifests
+[2026-08-31 16:13:37,172] ======================================================================
+[2026-08-31 16:13:37,214]   wildfire files: 731
+[2026-08-31 16:13:37,214]   terrestrial weather files: 731
+[2026-08-31 16:13:37,214]   space weather files: 677
+[2026-08-31 16:13:37,214] Step 1/6 complete in 0s
+[2026-08-31 16:13:37,214] ======================================================================
+[2026-08-31 16:13:37,214] Step 2/6: Loading terrestrial + space weather stacks and building hazard masks
+[2026-08-31 16:13:37,214] ======================================================================
+[2026-08-31 16:15:20,584]   Space weather gridded via streaming per-file loop: 194310 timesteps
+[2026-08-31 16:15:21,274]   wildfire_source=gpkg_events
+[2026-08-31 16:15:36,975]   temperature hazards built (var=t2m, month-conditioned thresholds via numpy)
+[2026-08-31 16:15:45,248]   extreme_wind built (var=i10fg)
+[2026-08-31 16:15:53,397]   extreme_precip built (var=MultiSensor_QPE_01H_Pass2_00.00)
+[2026-08-31 16:16:45,818]   space_weather_extreme built (5-min operational aggregation, per-cell p95, 5-step persistence)
+[2026-08-31 16:16:46,038]   extreme_wind_era5 built from cache: /Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/MYRIAD_events_output/production/v2_conditioned_2024_2025/era5_wind_daily.nc
+[2026-08-31 16:16:46,052]   wildfire                 mode=daily    active-cell fraction=0.00032
+[2026-08-31 16:16:46,165]   extreme_heat             mode=subdaily active-cell fraction=0.04553
+[2026-08-31 16:16:46,281]   extreme_cold             mode=subdaily active-cell fraction=0.04623
+[2026-08-31 16:16:58,519]   extreme_wind             mode=subdaily active-cell fraction=0.04500
+[2026-08-31 16:17:07,374]   extreme_precip           mode=subdaily active-cell fraction=0.07222
+[2026-08-31 16:17:08,551]   space_weather_extreme    mode=subdaily active-cell fraction=0.01244
+[2026-08-31 16:17:08,556]   extreme_wind_era5        mode=daily    active-cell fraction=0.00251
+[2026-08-31 16:17:08,556] Step 2/6 complete in 211s
+[2026-08-31 16:17:08,556] ======================================================================
+[2026-08-31 16:17:08,556] Step 3/6: Labeling single-hazard events (connected components in time+space)
+[2026-08-31 16:17:08,556] ======================================================================
+[2026-08-31 16:17:08,556]   Labeling: wildfire ...
+[2026-08-31 16:17:08,625]   wildfire: 112 events retained (in 0s)
+[2026-08-31 16:17:08,625]   Labeling: extreme_heat ...
+[2026-08-31 16:17:12,197]   extreme_heat: 2130 events retained (in 4s)
+[2026-08-31 16:17:12,197]   Labeling: extreme_cold ...
+[2026-08-31 16:17:15,739]   extreme_cold: 2027 events retained (in 4s)
+[2026-08-31 16:17:15,739]   Labeling: extreme_wind ...
+[2026-08-31 16:17:30,290]   extreme_wind: 2283 events retained (in 15s)
+[2026-08-31 16:17:30,290]   Labeling: extreme_precip ...
+[2026-08-31 16:17:44,361]   extreme_precip: 1832 events retained (in 14s)
+[2026-08-31 16:17:44,361]   Labeling: space_weather_extreme ...
+[2026-08-31 16:18:14,382]   space_weather_extreme: 9708 events retained (in 30s)
+[2026-08-31 16:18:14,382]   Labeling: extreme_wind_era5 ...
+[2026-08-31 16:18:14,473]   extreme_wind_era5: 123 events retained (in 0s)
+[2026-08-31 16:18:14,604] Total single-hazard events: 18215
+[2026-08-31 16:18:14,604] hazard
+space_weather_extreme    9708
+extreme_wind             2283
+extreme_heat             2130
+extreme_cold             2027
+extreme_precip           1832
+extreme_wind_era5         123
+wildfire                  112
+[2026-08-31 16:18:14,604] Step 3/6 complete in 66s
+[2026-08-31 16:18:37,721] Checkpoint saved to /Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/MYRIAD_events_output/production/myriad_conus_20240101_20251231/checkpoints in 23s (resume with resume_linking_from_checkpoint.py if steps 4-6 need to be redone)
+[2026-08-31 16:18:37,722] ======================================================================
+[2026-08-31 16:18:37,722] Step 4/6: Linking multihazard event pairs
+[2026-08-31 16:18:37,722] ======================================================================
+[2026-08-31 16:18:47,151]   Linking pairs: extreme_cold vs extreme_heat (2027 x 2130)
+[2026-08-31 16:18:58,326]   Linking pairs: extreme_cold vs extreme_precip (2027 x 1832)
+[2026-08-31 16:19:07,825]   Linking pairs: extreme_cold vs extreme_wind (2027 x 2283)
+[2026-08-31 16:19:19,822]   Linking pairs: extreme_cold vs extreme_wind_era5 (2027 x 123)
+[2026-08-31 16:19:20,436]   Linking pairs: extreme_cold vs space_weather_extreme (2027 x 9708)
+[2026-08-31 16:20:07,934]   Linking pairs: extreme_cold vs wildfire (2027 x 112)
+[2026-08-31 16:20:08,486]   Linking pairs: extreme_heat vs extreme_precip (2130 x 1832)
+[2026-08-31 16:20:18,504]   Linking pairs: extreme_heat vs extreme_wind (2130 x 2283)
+[2026-08-31 16:20:30,981]   Linking pairs: extreme_heat vs extreme_wind_era5 (2130 x 123)
+[2026-08-31 16:20:31,618]   Linking pairs: extreme_heat vs space_weather_extreme (2130 x 9708)
+[2026-08-31 16:21:21,598]   Linking pairs: extreme_heat vs wildfire (2130 x 112)
+[2026-08-31 16:21:22,172]   Linking pairs: extreme_precip vs extreme_wind (1832 x 2283)
+[2026-08-31 16:21:32,666]   Linking pairs: extreme_precip vs extreme_wind_era5 (1832 x 123)
+[2026-08-31 16:21:33,218]   Linking pairs: extreme_precip vs space_weather_extreme (1832 x 9708)
+[2026-08-31 16:22:18,595]   Linking pairs: extreme_precip vs wildfire (1832 x 112)
+[2026-08-31 16:22:19,081]   Linking pairs: extreme_wind vs extreme_wind_era5 (2283 x 123)
+[2026-08-31 16:22:19,760]   Linking pairs: extreme_wind vs space_weather_extreme (2283 x 9708)
+[2026-08-31 16:23:12,861]   Linking pairs: extreme_wind vs wildfire (2283 x 112)
+[2026-08-31 16:23:13,483]   Linking pairs: extreme_wind_era5 vs space_weather_extreme (123 x 9708)
+[2026-08-31 16:23:16,353]   Linking pairs: extreme_wind_era5 vs wildfire (123 x 112)
+[2026-08-31 16:23:16,387]   Linking pairs: space_weather_extreme vs wildfire (9708 x 112)
+[2026-08-31 16:23:19,095] Accepted links: 78795
+[2026-08-31 16:23:19,095] Step 4/6 complete in 281s
+[2026-08-31 16:23:19,095] ======================================================================
+[2026-08-31 16:23:19,095] Step 5/6: Building multihazard event sets (bounded-episode union-find)
+[2026-08-31 16:23:19,095] ======================================================================
+[2026-08-31 16:23:21,904] Identified multi-hazard event sets: 1489
+[2026-08-31 16:23:21,904]   Links rejected for exceeding 168h episode-span cap: 42377
+[2026-08-31 16:23:21,904]   Largest episode: 253 events
+[2026-08-31 16:23:21,904] Step 5/6 complete in 3s
+[2026-08-31 16:23:21,905] ======================================================================
+[2026-08-31 16:23:21,905] Step 6/6: Final summary
+[2026-08-31 16:23:21,905] ======================================================================
+[2026-08-31 16:23:21,910] 
+               hazard  n_events         first_start            last_end
+             wildfire       112 2024-02-12 00:00:00 2025-11-29 00:00:00
+         extreme_heat      2130 2024-01-01 02:00:00 2025-12-31 23:00:00
+         extreme_cold      2027 2024-01-05 08:00:00 2025-12-31 23:00:00
+         extreme_wind      2283 2024-01-01 05:00:00 2025-12-31 23:00:00
+       extreme_precip      1832 2024-01-01 01:00:00 2025-12-31 23:00:00
+space_weather_extreme      9708 2024-01-01 16:05:00 2025-12-31 19:00:00
+    extreme_wind_era5       123 2024-01-04 00:00:00 2025-12-30 00:00:00
+[2026-08-31 16:23:21,910] ======================================================================
+[2026-08-31 16:23:21,910] PRODUCTION PIPELINE COMPLETE
+[2026-08-31 16:23:21,910] ======================================================================
+[2026-08-31 16:23:21,910]   Period: 2024-01-01 to 2025-12-31
+[2026-08-31 16:23:21,910]   Total single-hazard events: 18215
+[2026-08-31 16:23:21,910]   Multihazard event sets: 1489
+[2026-08-31 16:23:21,910]   Output directory: /Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/MYRIAD_events_output/production/myriad_conus_20240101_20251231
+[2026-08-31 16:23:21,910]   Log file: /Users/ryanmc/Documents/Complex_Risk_Science/dev/Complex-Risk-Collective/.github/Projects/NASA-disasters-grid-resilience/logs/production_run_20260831_161337.log

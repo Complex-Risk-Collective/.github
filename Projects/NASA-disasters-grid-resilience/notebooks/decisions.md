@@ -53,9 +53,9 @@ Recent MYRIAD work uses event/polygon wildfire inputs, `i10fg` for 10 m wind gus
 
 Recent work favors GeoPackage wildfire polygons and an area filter of at least 5 km2, with the event data serving as the wildfire hazard list and polygons supplying spatial representation. The final source, update contract, and handling of overlapping events remain to be formalized.
 
-### Open: production coverage window
+### Confirmed: production coverage window
 
-The updated input audit found complete wildfire and terrestrial-weather daily coverage for 2024-2025 (731/731 days each). Space weather has 677/731 days, with gaps from 2024-06-17 through 2024-08-05 and 2025-02-06 through 2025-02-09. A preliminary full-period run may proceed with those space-weather gaps explicitly flagged, but missing data must not be converted into zero hazard.
+The updated input audit found complete wildfire, terrestrial-weather, and space-weather daily coverage for 2024-2025 after the missing space-weather files were added for 2024-06-17 through 2024-08-05 and 2025-02-06 through 2025-02-09. Missing or unusable source fields must still not be converted into zero hazard in future runs.
 
 ## Multi-Hazard Database Generation
 
@@ -121,7 +121,7 @@ Internal event-object QA currently checks timestamp ordering, nonempty label ref
 The current confidence hierarchy is:
 
 1. **Wildfire:** highest confidence because the event list is polygon-based and independently interpretable.
-2. **Space weather:** second-highest confidence because the operational definition and broad-area behavior are explicit, although source gaps remain and wide-area episodes require review.
+2. **Space weather:** second-highest confidence because the operational definition and broad-area behavior are explicit, although regridding artifacts and wide-area episodes require review.
 3. **MRMS precipitation:** useful for short-term detection, but event segmentation and long-lived regional objects require case-based review.
 4. **Temperature and wind:** structurally implemented, but longer-period climatology and physical case validation remain necessary.
 5. **Hail and lightning:** currently not production-ready in the available files. `MAXSIZE` is all missing, and NLDN density has no positive valid signal in the inspected inventory. MESH may provide a provisional hail proxy; lightning requires another usable source or a clearly labeled convective proxy.
@@ -152,6 +152,16 @@ One universal event duration is physically inappropriate. The database should pr
 ### Confirmed: intensity indicators are retained
 
 Each detected event can carry `peak_intensity` and `mean_intensity` derived from the hazard's native source field within its labeled footprint. These values remain in native units and should not be compared across hazards without explicit normalization. Intensity is evidence for event review and stratification; it is not yet a universal cross-hazard severity score.
+
+### Provisional: production thresholds should represent severity, not fixed exceedance rates
+
+The first full production run showed that common percentile-based masks for space weather, extreme heat/cold, wind, and precipitation can generate many structurally valid events while obscuring physically important hazard interactions. This is especially clear for space weather: a per-cell percentile threshold fixes an exceedance rate by construction and can make benign local departures appear alongside true geoelectric storms. Space-weather extremes should move toward an absolute or operationally meaningful geoelectric-field threshold in native units, with duration and broad-area response retained as event evidence.
+
+The same principle applies to terrestrial hazards. Percentile thresholds remain useful diagnostics, but production definitions should use physically interpretable criteria or hybrid rules where possible, such as wet-hour-conditioned precipitation percentiles with an absolute mm/h floor, absolute wind-gust thresholds tied to damaging-wind categories, and temperature thresholds conditioned on a longer climatology with duration requirements. The database should preserve the threshold version, source-field version, and event-definition version so sensitivity runs can be compared without overwriting earlier results.
+
+### Open: space-weather regridding and coverage provenance
+
+The striping in the space-weather fields is treated as a mapping artifact from the modeled geoelectric output grid to the 50 km analysis grid, not as a direct observational feature. Production space-weather processing should interpolate the modeled Ex/Ey field to the analysis grid, mask fill values before computing magnitude or thresholds, and carry a coverage or interpolation-support mask. Until that regridding is validated, spatial hotspot and overlap results involving space weather should be interpreted as provisional.
 
 ### Confirmed: directional lag matrix and spatial-pair rule
 
@@ -209,7 +219,7 @@ The current notebook can export event counts, event footprints, centroids, pair 
 
 ### Open: full-period generation gate
 
-Full 2024-2025 generation should wait until the event-object validation layer is reviewed and the hail/lightning source status is handled explicitly. The first release may proceed without lightning, with MESH used as a clearly labeled hail proxy and space-weather gaps explicitly flagged. Missing or unusable source fields must not be converted into zero hazard. Every production record should preserve source availability, cadence, threshold version, event-definition version, and lag-matrix version.
+Full 2024-2025 generation should wait until the event-object validation layer is reviewed and the hail/lightning source status is handled explicitly. The first release may proceed without lightning, with MESH used as a clearly labeled hail proxy and space-weather regridding/provenance limitations explicitly flagged. Missing or unusable source fields must not be converted into zero hazard. Every production record should preserve source availability, cadence, threshold version, event-definition version, and lag-matrix version.
 
 ### Open: event-object validation standard
 
