@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This project develops a data-driven, graph-based system for quantifying and reducing risk to the electric power grid from interacting space-weather, terrestrial-weather, and wildfire hazards. The scientific objectives and intended stakeholder partnerships are described in [README.md](../README.md). This document describes the implementation as it exists on 2026-08-26; it is an experimental research codebase, not yet a packaged production system.
+This project develops a data-driven, graph-based system for quantifying and reducing risk to the electric power grid from interacting space-weather, terrestrial-weather, and wildfire hazards. The scientific objectives and intended stakeholder partnerships are described in [README.md](../README.md). This document describes the implementation as it exists on 2026-10-02 (last substantively updated on that date); it is an experimental research codebase, not yet a packaged production system.
 
 ## Repository Layout
 
@@ -68,9 +68,20 @@ The grid template is stored locally at `data/analysis_grid_CONUS_50km.nc`. A cop
 | --- | --- | --- |
 | Severe weather | NOAA SWDI products such as `nx3tvs`, `nx3hail`, and `nx3structure` | Point/event observations aggregated to the common grid. |
 | Terrestrial weather | MRMS and RTMA GRIB2 data on public AWS S3 | Hourly precipitation, reflectivity, lightning, wind, temperature, and related fields; selected variables continue to evolve. |
-| Space weather | NOAA SWPC InterMagEarthScope geoelectric NetCDF files | `Ex` and `Ey` observations at discrete locations, with work continuing to map them to the analysis grid. |
+| Space weather | NOAA SWPC InterMagEarthScope geoelectric NetCDF files, interpolated to a fill-masked, no-extrapolation analysis-grid cache (`geoe_interpolated_v1_fillmasked_interp_noextrap`, monthly NetCDFs, 2024-2025) | `Ex`/`Ey`-derived `E_mag` on the analysis grid, now also compared against Eagle-I grid-impact episodes to derive an operational threshold (see Eagle-I Processing below). |
 | Wildfire | Daily wildfire event/polygon products, including GeoPackage-based inputs in recent work | Event inventory and spatial hazard mask. The final source contract is still provisional. |
 | Grid impacts | Eagle-I county outage records, Whisker Labs JSON/THD data, and NERC/PJM/SCE experiments | Temporal and spatial impact evidence for validation and decision-support exploration. |
+
+## Eagle-I Processing
+
+Eagle-I county-level power-outage data has a complete production pipeline in `notebooks/geoe_eaglei_threshold_analysis.ipynb`, kept distinct from the general multi-hazard grid flow above because Eagle-I is natively county-FIPS-indexed, not analysis-grid-indexed.
+
+- **Raw sources:** two overlapping raw formats exist for 2024 (a daily-granular directory with a `Contains Override Data` column, and separate top-level annual legacy files for 2024 and 2025). The full-period production pipeline deliberately uses only the two annual legacy files for both years, after a source-collision bug was found where mixing both formats silently corrupted max-based aggregation (see `decisions.md`). The daily-granular source remains in use for the May 2024 pilot window only.
+- **County panel:** `build_eaglei_county_panel()` builds a county-by-15-minute panel (58,183,354 rows, 3,077 counties, 2024-2025) from the raw source, with 2025's missing `total_customers` backfilled per-county from 2024 values.
+- **Thresholds and episodes:** a per-county threshold table (99th-percentile customers-out/percent-out, floored absolute minimums) feeds `identify_eaglei_impact_episodes()`, which identifies impact episodes under the `county_p99` definition (see `decisions.md` for the full rule) -- 37,950 episodes across 2,999 counties in the current full-period run.
+- **Matched quiet periods and GeoE alignment:** `construct_time_matched_quiet_periods()` builds time-conditioned quiet-period controls per episode, and a descriptor-extraction/bootstrap-shift pipeline compares GeoE electric-field exposure between the two populations -- the active workstream for a `space_weather_extreme` threshold (see `multihazard_database_plan.md`).
+- **Gridding:** Eagle-I's native unit is county FIPS, not the shared 50 km analysis grid. A separate county-to-analysis-grid-cell mapping (polygon intersection on five-character FIPS, with Connecticut's post-2022 legacy-FIPS transition recovered via 2021 Census geometry, and an explicit unmapped-county list rather than silent drops) exists for cross-hazard comparison, independent of the county-native panel used for Eagle-I's own threshold/episode work.
+- **Output locations:** Eagle-I-only outputs (panel, thresholds, episodes, quiet periods) live in `EAGLEI_DIR/processed/`; outputs that align Eagle-I against GeoE live in `space_weather/processed_data/` (`GEOE_OUTPUT_DIR`). These were deliberately separated after Eagle-I-only files were found duplicated in the wrong directory (see `eaglei_full_period_regen_checklist.md`).
 
 ## Network Analysis Layer
 
@@ -116,6 +127,7 @@ The table is a working inventory and must be revised as datasets are inspected. 
 - **Grid impact data:** `grid_network_analysis_v1.ipynb`, `eagleI_outage_visualization_experiment_v1.ipynb`, `NERC_TADS_data_exploration_v1.ipynb`, `PJM_API_experiment_v1.ipynb`, `PJM_PCLLRW_experiment_v1.ipynb`, `SCE_PSPS_report_extractor_experiment_v1.ipynb`, and `whisker_labs_experiment_v1.ipynb` investigate network structure, outages, reliability data, and partner-specific sources.
 - **MYRIAD identification:** `myriad_data_experiment_v1.ipynb` prepares a historical reference event list; `myriad_algorithm_multihazard_identification.ipynb` implements and tunes a CONUS multi-hazard event-identification workflow.
 - **Space weather:** `NOAA_geoE_exploration_v1.ipynb` documents NOAA geoelectric file structure, caching, and location time series. Its current cells are unexecuted, although some outputs remain stored.
+- **Eagle-I / GeoE distributional-shift analysis:** `geoe_eaglei_threshold_analysis.ipynb` builds the Eagle-I county outage panel and `county_p99` impact-episode table, constructs matched quiet-period controls, extracts GeoE electric-field descriptors over both populations from the interpolated cache, and scores distributional shift via a bootstrap log-exceedance-ratio -- the active workstream for a `space_weather_extreme` threshold (see `decisions.md` and `multihazard_database_plan.md`). See the dedicated "Eagle-I Processing" section above for the full pipeline.
 
 ## External Dependencies and Paths
 
@@ -129,6 +141,8 @@ The code currently reaches outside this directory. These paths are exact local p
 - Historical MYRIAD source: `/Users/ryanmc/Documents/Conferences/Jack_Eddy_Symposium_2022/dev/candidate_multihazards_data/myriad-hes.csv`
 - Whisker Labs data: `/Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/Whisker_Labs_Data_March2026/`
 - NOAA geoelectric cache: `/Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/space_weather/NOAA_geoE/`
+- Eagle-I-only processed outputs (panel, thresholds, episodes, quiet periods): `/Users/ryanmc/Documents/Conferences/Jack_Eddy_Symposium_2022/dev/outage_data/EAGLE-I/processed/`
+- Outputs aligning Eagle-I against GeoE (`GEOE_OUTPUT_DIR`): `/Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/space_weather/processed_data/`
 
 Online interfaces include NOAA SWDI, NOAA SWPC, and anonymous/public AWS S3 access for MRMS and RTMA. Census/TIGER county geometry is also used in some workflows. Credentials, network availability, public bucket policies, and local cache contents affect reproducibility.
 
@@ -144,7 +158,7 @@ The canonical project specification is the root `environment.yml`, whose default
 - Eagle-I county keys must be normalized as five-character strings before joining to Census/TIGER GEOIDs.
 - Whisker timestamps and NOAA geoelectric time encodings require explicit timezone/epoch checks.
 - There is no visible automated test suite or CI workflow. Notebook outputs are useful evidence but require provenance checks.
-- As of 2026-08-26, the MYRIAD input audit found missing terrestrial-weather days from 2024-06-02 through 2024-06-14, missing NOAA geoelectric days from 2024-06-17 through 2024-08-05, and no 2025 files for either source. Full 2024-2025 generation should therefore wait for coverage or a revised scope.
+- Resolved: the terrestrial-weather and NOAA geoelectric coverage gaps found in the 2026-08-26 MYRIAD input audit (missing terrestrial-weather days 2024-06-02 through 2024-06-14, missing geoelectric days 2024-06-17 through 2024-08-05, no 2025 files for either source) were filled; `decisions.md` records complete 2024-2025 daily coverage for wildfire, terrestrial-weather, and space weather as of the updated audit. Full 2024-2025 generation is no longer blocked on this specific gap.
 
 ## Documentation Maintenance
 

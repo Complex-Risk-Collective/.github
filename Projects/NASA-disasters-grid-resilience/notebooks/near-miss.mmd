@@ -1,0 +1,230 @@
+flowchart LR
+
+%% =========================================================
+%% OPERATING REGIME
+%% =========================================================
+
+subgraph REGIME["1. OPERATING REGIME"]
+    direction TB
+    BASE([Baseline Operating State])
+    CONTEXT[Seasonal / Diurnal Context]
+    DEMAND[Expected Demand]
+    CONTEXT -. conditions .-> BASE
+    DEMAND -. conditions .-> BASE
+end
+
+
+%% =========================================================
+%% DISTURBANCE
+%% =========================================================
+
+subgraph DISTURBANCE["2. DISTURBANCE"]
+    direction TB
+    HAZARDS[External Hazards]
+    COMPOUND[Compounding Hazards]
+    COMPONENT[Component Failure]
+    OPDIST[Operational Disturbance]
+
+    HAZARDS --> COMPOUND
+end
+
+BASE --> STRESS[System Stressor]
+
+HAZARDS --> STRESS
+COMPOUND --> STRESS
+COMPONENT --> STRESS
+OPDIST --> STRESS
+
+
+%% =========================================================
+%% SYSTEM RESPONSE
+%% =========================================================
+
+subgraph RESPONSE["3. SYSTEM RESPONSE"]
+    direction TB
+
+    SYSRESP[Grid System Response]
+
+    VOLT[Voltage Response]
+    FREQ[Frequency Response]
+    FLOW[Power Flow Redistribution]
+    THERM[Thermal Response]
+    TOPO[Topology Change]
+    DYN[Dynamic / Stability Response]
+
+    SYSRESP --> VOLT
+    SYSRESP --> FREQ
+    SYSRESP --> FLOW
+    SYSRESP --> THERM
+    SYSRESP --> TOPO
+    SYSRESP --> DYN
+end
+
+STRESS --> SYSRESP
+
+
+%% =========================================================
+%% ADAPTIVE CAPACITY
+%% =========================================================
+
+subgraph ADAPT["4. ADAPTIVE CAPACITY"]
+    direction TB
+
+    CAPACITY[Available Adaptive Capacity]
+
+    RESERVE[Generation / Transmission Reserves]
+    PROTECT[Protection Systems]
+    OPERATOR[Operator Intervention]
+    REDISPATCH[Generator Redispatch]
+    SHED[Load Shedding / PSPS]
+    FLEX[Operational Flexibility]
+    MUTUAL[Mutual Aid]
+
+    RESERVE --> CAPACITY
+    PROTECT --> CAPACITY
+    OPERATOR --> CAPACITY
+    REDISPATCH --> CAPACITY
+    SHED --> CAPACITY
+    FLEX --> CAPACITY
+    MUTUAL --> CAPACITY
+end
+
+SYSRESP -. activates / consumes .-> CAPACITY
+CAPACITY ==>|modifies trajectory| CRIT
+
+
+%% =========================================================
+%% CRITICALITY
+%% =========================================================
+
+subgraph CRITICAL["5. APPROACH TO CRITICALITY"]
+    direction TB
+
+    CRIT[System Trajectory]
+
+    LOADING[System Loading]
+    MARGIN[Stability Margins]
+    FAILCOUNT[Failed Line Count]
+    FAILCAP[Failed Line Capacity]
+    PROP[Failure Propagation]
+    DISTANCE[Distance to Critical Threshold]
+
+    LOADING --> DISTANCE
+    MARGIN --> DISTANCE
+    FAILCOUNT --> DISTANCE
+    FAILCAP --> DISTANCE
+    PROP --> DISTANCE
+
+    DISTANCE --> CRIT
+end
+
+SYSRESP --> LOADING
+SYSRESP --> MARGIN
+SYSRESP --> FAILCOUNT
+SYSRESP --> FAILCAP
+SYSRESP --> PROP
+
+
+%% =========================================================
+%% OUTCOMES
+%% =========================================================
+
+subgraph OUTCOME["6. TRAJECTORY OUTCOME"]
+    direction TB
+
+    RECOVER[Recovery]
+    NEARMISS[[NEAR MISS]]
+    ESCALATE[Escalating Cascade]
+    COLLAPSE[[GRID COLLAPSE]]
+
+    RECOVER --> NEARMISS
+    ESCALATE --> COLLAPSE
+end
+
+CRIT --> RECOVER
+CRIT --> ESCALATE
+
+NEARMISS ==>|return to operating regime| BASE
+
+
+%% =========================================================
+%% MEASUREMENT / OBSERVABILITY
+%% =========================================================
+
+subgraph MEASURE["MEASUREMENT & OBSERVABILITY"]
+    direction LR
+
+    OBSERVE[Observable System State]
+
+    VM[Voltage Stability]
+    FM[Frequency Stability]
+    TL[Thermal Loading]
+    PF[Power Flow]
+    FC[Failed Line Count]
+    FCAP[Failed Line Capacity]
+    THD[THD / Harmonics]
+    TOPOOBS[Topology]
+    ACTIONS[Operator Actions]
+
+    VM --> OBSERVE
+    FM --> OBSERVE
+    TL --> OBSERVE
+    PF --> OBSERVE
+    FC --> OBSERVE
+    FCAP --> OBSERVE
+    THD --> OBSERVE
+    TOPOOBS --> OBSERVE
+    ACTIONS --> OBSERVE
+end
+
+VM -.-> MARGIN
+FM -.-> MARGIN
+TL -.-> LOADING
+PF -.-> FLOW
+FC -.-> FAILCOUNT
+FCAP -.-> FAILCAP
+THD -.-> SYSRESP
+TOPOOBS -.-> TOPO
+ACTIONS -.-> OPERATOR
+
+
+%% =========================================================
+%% SPATIAL / TEMPORAL CONTEXT
+%% =========================================================
+
+subgraph CONTEXTUAL["CONTEXT"]
+    direction LR
+    SPACE[Spatial Scale]
+    TIME[Temporal Scale]
+end
+
+SPACE -. conditions .-> SYSRESP
+SPACE -. conditions .-> CRIT
+TIME -. conditions .-> SYSRESP
+TIME -. conditions .-> CRIT
+
+
+%% =========================================================
+%% STYLING
+%% =========================================================
+
+classDef regime fill:#E8F1F8,stroke:#3B6E8F,stroke-width:2px
+classDef disturbance fill:#FBE9D7,stroke:#C77C30,stroke-width:2px
+classDef response fill:#E8EEF8,stroke:#4C6FA8,stroke-width:2px
+classDef adaptive fill:#E8F3E8,stroke:#4F8A5B,stroke-width:2px
+classDef critical fill:#F4EAF5,stroke:#87518E,stroke-width:2px
+classDef outcome fill:#F8E8E8,stroke:#A65353,stroke-width:2px
+classDef measurement fill:#F2F2F2,stroke:#777777,stroke-width:1.5px
+classDef context fill:#F5F5F5,stroke:#999999,stroke-width:1px
+classDef central fill:#FFFFFF,stroke:#333333,stroke-width:3px
+
+class BASE,CONTEXT,DEMAND regime
+class HAZARDS,COMPOUND,COMPONENT,OPDIST,STRESS disturbance
+class SYSRESP,VOLT,FREQ,FLOW,THERM,TOPO,DYN response
+class CAPACITY,RESERVE,PROTECT,OPERATOR,REDISPATCH,SHED,FLEX,MUTUAL adaptive
+class CRIT,LOADING,MARGIN,FAILCOUNT,FAILCAP,PROP,DISTANCE critical
+class RECOVER,NEARMISS,ESCALATE,COLLAPSE outcome
+class OBSERVE,VM,FM,TL,PF,FC,FCAP,THD,TOPOOBS,ACTIONS measurement
+class SPACE,TIME context
+
+class STRESS,SYSRESP,CAPACITY,CRIT,NEARMISS central
