@@ -1,0 +1,80 @@
+variable,source,long_name,units,dims,cell_statistic,time_window,description
+EchoTop_18_00.50,MRMS,18 dBZ echo top,km,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Height of the 18 dBZ echo; storm depth / convective intensity
+EchoTop_50_00.50,MRMS,50 dBZ echo top,km,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)","Height of the 50 dBZ echo; strongest storm cores, hail/wind indicator"
+FLASH_QPE_ARI012H_00.00,MRMS FLASH,12-h rainfall recurrence interval,years,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)",Average recurrence interval of the 12-h rainfall
+FLASH_QPE_ARI01H_00.00,MRMS FLASH,1-h rainfall recurrence interval,years,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)",Average recurrence interval of the 1-h rainfall; extreme short-duration rain
+FLASH_QPE_ARIMAX_00.00,MRMS FLASH,Max rainfall recurrence interval,years,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)",Largest recurrence interval across accumulation windows; exceptional rain
+MESH_00.50,MRMS,Maximum estimated size of hail,mm,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Radar-estimated maximum hail diameter; direct hail damage proxy
+MergedAzShear0to2kmAGL_00.50,MRMS,Azimuthal shear 0-2 km AGL,s-1,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Low-level rotation; tornado potential
+MergedAzShear3to6kmAGL_00.50,MRMS,Azimuthal shear 3-6 km AGL,s-1,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Mid-level rotation; mesocyclone / organized convection
+MergedBaseReflectivity_00.50,MRMS,Base reflectivity,dBZ,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Near-surface radar reflectivity from all radars; rain/hail intensity at low levels
+MergedReflectivityAtLowestAltitude_00.50,MRMS,Reflectivity at lowest altitude,dBZ,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Reflectivity at the lowest available altitude; near-surface storm impact
+MergedReflectivityComposite_00.50,MRMS,Composite reflectivity,dBZ,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Maximum reflectivity in the vertical column; overall storm severity
+MultiSensor_QPE_01H_Pass2_00.00,MRMS,"1-h precipitation, gauge-corrected",mm,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)","1-hour accumulation (Pass 2, gauge-corrected); short-term flood potential"
+MultiSensor_QPE_24H_Pass2_00.00,MRMS,"24-h precipitation, gauge-corrected",mm,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)",24-hour accumulation; flooding risk
+MultiSensor_QPE_72H_Pass2_00.00,MRMS,"72-h precipitation, gauge-corrected",mm,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)",72-hour accumulation; soil saturation / prolonged flood risk
+NLDN_CG_001min_AvgDensity_00.00,MRMS/NLDN,"CG lightning density, 1-min",flashes km-2 min-1,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)","Cloud-to-ground flash density, 1-minute average"
+NLDN_CG_015min_AvgDensity_00.00,MRMS/NLDN,"CG lightning density, 15-min",flashes km-2 min-1,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)","Cloud-to-ground flash density, 15-minute average"
+PrecipRate_00.00,MRMS,Precipitation rate,mm h-1,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Instantaneous surface rain rate; flash flood / downburst risk
+RotationTrackML60min_00.50,MRMS,60-min rotation track (ML-filtered),s-1,"time,y,x",max,"accumulated product, file nearest HH:00 (window ends at label time)",Maximum low-level shear over the past 60 min; rotation/damage swaths
+VII_00.50,MRMS,Vertically integrated ice,kg m-2,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Ice mass in the storm column; hail and severe convection potential
+VIL_Density_00.50,MRMS,VIL density,g m-3,"time,y,x",max,"max over 6 files in [HH:00, HH+1:00)",Vertically integrated liquid divided by echo top; downburst/hail proxy
+EchoTop_18_00.50_valid_frac,MRMS,18 dBZ echo top: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+EchoTop_50_00.50_valid_frac,MRMS,50 dBZ echo top: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+FLASH_QPE_ARI012H_00.00_valid_frac,MRMS FLASH,12-h rainfall recurrence interval: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+FLASH_QPE_ARI01H_00.00_valid_frac,MRMS FLASH,1-h rainfall recurrence interval: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+FLASH_QPE_ARIMAX_00.00_valid_frac,MRMS FLASH,Max rainfall recurrence interval: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MESH_00.50_valid_frac,MRMS,Maximum estimated size of hail: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MergedAzShear0to2kmAGL_00.50_valid_frac,MRMS,Azimuthal shear 0-2 km AGL: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MergedAzShear3to6kmAGL_00.50_valid_frac,MRMS,Azimuthal shear 3-6 km AGL: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MergedBaseReflectivity_00.50_valid_frac,MRMS,Base reflectivity: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MergedReflectivityAtLowestAltitude_00.50_valid_frac,MRMS,Reflectivity at lowest altitude: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MergedReflectivityComposite_00.50_valid_frac,MRMS,Composite reflectivity: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MultiSensor_QPE_01H_Pass2_00.00_valid_frac,MRMS,"1-h precipitation, gauge-corrected: valid-pixel fraction",1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MultiSensor_QPE_24H_Pass2_00.00_valid_frac,MRMS,"24-h precipitation, gauge-corrected: valid-pixel fraction",1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+MultiSensor_QPE_72H_Pass2_00.00_valid_frac,MRMS,"72-h precipitation, gauge-corrected: valid-pixel fraction",1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+NLDN_CG_001min_AvgDensity_00.00_valid_frac,MRMS/NLDN,"CG lightning density, 1-min: valid-pixel fraction",1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+NLDN_CG_015min_AvgDensity_00.00_valid_frac,MRMS/NLDN,"CG lightning density, 15-min: valid-pixel fraction",1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+PrecipRate_00.00_valid_frac,MRMS,Precipitation rate: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+RotationTrackML60min_00.50_valid_frac,MRMS,60-min rotation track (ML-filtered): valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+VII_00.50_valid_frac,MRMS,Vertically integrated ice: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+VIL_Density_00.50_valid_frac,MRMS,VIL density: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+PrecipFlag_dominant,MRMS PrecipFlag,Dominant precipitation class,category,"time,y,x",argmax of class fractions,"[HH:00, HH+1:00)","Class with the largest fraction: 0 none, 1 rain, 2 snow, 3 hail; -1 no coverage"
+PrecipFlag_frac_hail,MRMS PrecipFlag,Fraction of cell with rain+hail,1,"time,y,x",mean,"mean over 6 files in [HH:00, HH+1:00)",Share flagged as rain mixed with hail (code 7)
+PrecipFlag_frac_none,MRMS PrecipFlag,Fraction of cell with no precipitation,1,"time,y,x",mean,"mean over 6 files in [HH:00, HH+1:00)",Share of valid pixels (averaged over the hour) flagged as no precipitation
+PrecipFlag_frac_rain,MRMS PrecipFlag,Fraction of cell with rain,1,"time,y,x",mean,"mean over 6 files in [HH:00, HH+1:00)","Share flagged as warm/cool stratiform, convective or tropical rain (codes 1,6,10,91,96)"
+PrecipFlag_frac_snow,MRMS PrecipFlag,Fraction of cell with snow,1,"time,y,x",mean,"mean over 6 files in [HH:00, HH+1:00)",Share flagged as snow (code 3)
+PrecipFlag_frac_hail_valid_frac,MRMS PrecipFlag,Fraction of cell with rain+hail: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+PrecipFlag_frac_none_valid_frac,MRMS PrecipFlag,Fraction of cell with no precipitation: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+PrecipFlag_frac_rain_valid_frac,MRMS PrecipFlag,Fraction of cell with rain: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+PrecipFlag_frac_snow_valid_frac,MRMS PrecipFlag,Fraction of cell with snow: valid-pixel fraction,1,"time,y,x",,,Share of raw pixels in the cell with valid data (0 = no coverage)
+ceil,RTMA,Cloud ceiling,m,"time,y,x",median,analysis valid at HH:00,Cloud base height; check the value used for 'no ceiling' before analysis
+ceil_frac_lt300m,RTMA,"Cloud ceiling, fraction of cell below 300 m",1,"time,y,x",frac_lt:300,analysis valid at HH:00,Cloud base height; check the value used for 'no ceiling' before analysis
+ceil_min,RTMA,"Cloud ceiling, minimum in cell",m,"time,y,x",min,analysis valid at HH:00,Cloud base height; check the value used for 'no ceiling' before analysis
+d2m,RTMA,2 m dew point,K,"time,y,x",mean,analysis valid at HH:00,Atmospheric moisture; fog and convection potential
+d2m_max,RTMA,"2 m dew point, maximum in cell",K,"time,y,x",max,analysis valid at HH:00,Atmospheric moisture; fog and convection potential
+i10fg,RTMA,10 m wind gust,m s-1,"time,y,x",max,analysis valid at HH:00,Peak gust; main driver of wind damage/outages
+orog,RTMA,Surface elevation,m,"y,x",mean,,Static terrain height (no time dimension)
+sh2,RTMA,2 m specific humidity,kg kg-1,"time,y,x",mean,analysis valid at HH:00,Absolute moisture content
+sh2_max,RTMA,"2 m specific humidity, maximum in cell",kg kg-1,"time,y,x",max,analysis valid at HH:00,Absolute moisture content
+sp,RTMA,Surface pressure,Pa,"time,y,x",mean,analysis valid at HH:00,"Station-level pressure; varies mostly with elevation, compare with orog"
+t2m,RTMA,2 m air temperature,K,"time,y,x",mean,analysis valid at HH:00,"Surface thermal state; heat, icing, rain/snow phase"
+t2m_max,RTMA,"2 m air temperature, maximum in cell",K,"time,y,x",max,analysis valid at HH:00,"Surface thermal state; heat, icing, rain/snow phase"
+t2m_min,RTMA,"2 m air temperature, minimum in cell",K,"time,y,x",min,analysis valid at HH:00,"Surface thermal state; heat, icing, rain/snow phase"
+tcc,RTMA,Total cloud cover,%,"time,y,x",mean,analysis valid at HH:00,Cloud fraction
+u10,RTMA,10 m eastward wind,m s-1,"time,y,x",mean,analysis valid at HH:00,"Earth-relative, rebuilt from wspd10/wdir10 at 2.5 km, then cell mean"
+v10,RTMA,10 m northward wind,m s-1,"time,y,x",mean,analysis valid at HH:00,"Earth-relative, rebuilt from wspd10/wdir10 at 2.5 km, then cell mean"
+vis,RTMA,Visibility,m,"time,y,x",median,analysis valid at HH:00,"Surface visibility; fog, heavy precipitation, smoke"
+vis_frac_lt1km,RTMA,"Visibility, fraction of cell below 1 km",1,"time,y,x",frac_lt:1000,analysis valid at HH:00,"Surface visibility; fog, heavy precipitation, smoke"
+vis_min,RTMA,"Visibility, minimum in cell",m,"time,y,x",min,analysis valid at HH:00,"Surface visibility; fog, heavy precipitation, smoke"
+wdir10,RTMA,10 m wind direction (from),degree,"time,y,x",derived from cell-mean u10/v10,analysis valid at HH:00,Meteorological direction computed from cell-mean u10/v10
+wspd10,RTMA,10 m wind speed,m s-1,"time,y,x",max,analysis valid at HH:00,Sustained wind
+rtma_valid_frac,RTMA,RTMA valid-pixel fraction,1,"time,y,x",,analysis valid at HH:00,Share of 2.5 km pixels in the cell with valid t2m; <1 near coasts/borders
+MAXSIZE,SWDI nx3hail,Maximum expected hail size,as in SWDI (NEXRAD L3),"time,y,x",see aggregate_swdi.py,detections within the hour (see aggregate_swdi.py),Hail detection maximum size estimate
+MAX_REFLECT,SWDI nx3structure,Storm-cell max reflectivity,dBZ,"time,y,x",see aggregate_swdi.py,detections within the hour (see aggregate_swdi.py),Peak reflectivity of storm cells
+MAX_SHEAR,SWDI nx3tvs,TVS maximum shear,as in SWDI (NEXRAD L3),"time,y,x",see aggregate_swdi.py,detections within the hour (see aggregate_swdi.py),Strongest rotation signature of tornado vortex detections in the cell
+MXDV,SWDI nx3tvs,TVS maximum delta velocity,as in SWDI (NEXRAD L3),"time,y,x",see aggregate_swdi.py,detections within the hour (see aggregate_swdi.py),Maximum gate-to-gate velocity difference of TVS detections
+PROB,SWDI nx3hail,Probability of hail,%,"time,y,x",see aggregate_swdi.py,detections within the hour (see aggregate_swdi.py),NEXRAD hail detection probability
+VIL,SWDI nx3structure,Storm-cell VIL,kg m-2,"time,y,x",see aggregate_swdi.py,detections within the hour (see aggregate_swdi.py),Vertically integrated liquid of storm cells
+lat,grid,Latitude of cell center,degrees_north,"y,x",,,WGS84
+lon,grid,Longitude of cell center,degrees_east,"y,x",,,WGS84
