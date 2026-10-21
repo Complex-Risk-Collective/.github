@@ -1,0 +1,155 @@
+project:
+  # Paths below are interpreted relative to this root.
+  # This path is resolved relative to this YAML file.
+  root_directory: "."
+
+  scripts_directory: "."
+
+paths:
+  template_raster: "data/template.tif"
+  conductor_vector: "data/conductors.gpkg"
+
+  prepared_fire_directory: "work/fire_prepared"
+  era5_directory: "work/era5"
+  era5_raster_directory: "work/era5_rasters"
+  conductor_directory: "work/conductor"
+  fire_case_directory: "work/fire_cases"
+  rating_directory: "work/rating"
+
+stages:
+  # Set false if ERA5 NetCDF already exists.
+  download_era5: false
+
+  # Set false if timestamped ERA5 rasters already exist.
+  extract_era5: false
+
+  # Set false if conductor rasters are already current.
+  rasterize_conductors: true
+
+analysis:
+  # timestamp_matched:
+  #   Uses the fire-intensity raster at rating_time_utc.
+  #
+  # event_maximum:
+  #   Uses the temporal maximum for the chosen percentile, but still
+  #   uses weather from rating_time_utc.
+  fire_mode: "timestamp_matched"
+
+  # MCMC percentile. Enter 99 rather than p099.
+  percentile: 99
+
+  # Pyretechnics _001 is already interpreted as simulation start + 0 h
+  # by prepare_pyretechnics_outputs.py using one_based_index.
+  rating_time_utc: "2024-06-26T00:00:00Z"
+
+era5:
+  # ERA5 bounding-box order:
+  # north, west, south, east
+  bbox:
+    north: 39.0
+    west: -122.0
+    south: 38.0
+    east: -121.0
+
+  compression_level: 4
+  keep_grib: false
+
+
+conductors:
+  # Choose either:
+  #   endpoints
+  #   vector
+  source_type: endpoints
+
+  # Standardized vector used by all downstream scripts.
+  prepared_vector: ../work/conductor_input/conductors.gpkg
+  prepared_layer: conductors
+
+  # ------------------------------------------------------------
+  # Endpoint mode
+  # ------------------------------------------------------------
+  endpoints:
+    crs: EPSG:4326
+
+    p1:
+      lon: -119.244
+      lat: 36.789
+
+    p2:
+      lon: -119.244
+      lat: 36.7889
+
+    line_id: conductor_001
+    height_m: 50.0
+
+    # These are not geometry parameters, but including them here
+    # allows the prepared vector to carry known conductor properties.
+    #
+    # REQUIRED before thermal calculations.
+    diameter_m: null
+    solar_absorptivity: null
+    emissivity: null
+
+  # ------------------------------------------------------------
+  # Existing-vector mode
+  # ------------------------------------------------------------
+  vector:
+    path: null
+    layer: null
+
+    # Attribute-field mappings in the source vector.
+    line_id_field: line_id
+    height_field: height_m
+    diameter_field: diameter_m
+    absorptivity_field: solar_abs
+    emissivity_field: emissivity
+
+    # Defaults applied when corresponding fields are absent.
+    default_height_m: null
+    default_diameter_m: null
+    default_absorptivity: null
+    default_emissivity: null
+
+  # The adapter writes these standardized fields:
+  fields:
+    line_id: line_id
+    height_m: height_m
+    diameter_m: diameter_m
+    absorptivity: solar_abs
+    emissivity: emissivity
+
+  # Rasterization behavior.
+  all_touched: true
+
+
+wind:
+  # ERA5 wind is at 10 m. For a uniform 10 m conductor height, this
+  # transformation has a factor of one.
+  method: "power"
+
+  # REVIEW if conductor height differs from 10 m.
+  power_exponent: 0.142857
+
+  # Required only when method is "log".
+  roughness_length_m: null
+
+  calm_threshold_m_s: 0.1
+
+solar:
+  # Current provisional method:
+  # copy ERA5 hourly-mean SSRD to the Qse input.
+  method: "era5_ssrd_approximation"
+
+wildfire_heat:
+  # REVIEW: Manuscript case-study assumptions.
+  convective_coefficient: 0.1
+  radiative_fraction: 0.15
+  radiating_front_length_m: 100.0
+  ground_offset_m: 0.0
+  front_angle_deg: 0.0
+
+  # The rating script uses --solar-off for the wildfire calculation.
+  solar_gain_during_wildfire: false
+
+outputs:
+  overwrite: true

@@ -1,0 +1,259 @@
+
+project:
+  script_directory: ../
+  work_directory: /mnt/data1/MultiHazard/fragility/work/
+
+grid:
+  template_raster: /mnt/data1/MultiHazard/fragility/data/template.tif
+
+pipeline:
+  # Set false if prepare_pyretechnics_outputs.py has already completed
+  # and its outputs should be reused.
+  prepare_pyretechnics_outputs: false
+
+  download_era5: false
+  extract_era5: false
+
+analysis:
+  # timestamp_matched or event_maximum
+  fire_mode: timestamp_matched
+
+  fire_percentile: 99
+
+  # Weather and fire condition used for IEEE 738.
+  rating_timestamp_utc: "2024-06-26T00:00:00Z"
+
+
+
+# Filled in automatically in the resolved configuration.
+conductor_elevation_msl_m: null
+
+prepare_conductor_elevation:
+  enabled: true
+
+  # Existing local bare-earth DEM.
+  dem: ../data/previous_run_lc_fire/fresno-june-lc-run-nlahaye_20240626_120000_exporter_f1cb179721adebd1896a9f1a4561848f/input-deck/dem.tif
+
+  # Existing conductor-only raster:
+  # valid azimuth on conductors, nodata elsewhere.
+  template_raster: ../data/template.tif
+
+  # Your current constant-height assumption.
+  conductor_height_agl_m: 50.0
+
+  # Verify against your DEM documentation.
+  # Options: m, ft, us_survey_ft
+  dem_vertical_units: m
+
+  # Use NAVD88 only if this is actually the DEM's datum.
+  dem_vertical_datum: NAVD88
+
+  resampling: bilinear
+  allow_partial_coverage: false
+
+  output_raster: ../work/conductor/conductor_elevation_msl_m.tif
+
+  # Keep this beside the original YAML.
+  output_config: workflow.elevation_resolved.yaml
+
+  # scalar: write a number into the parameter
+  # raster: write the output raster's absolute path
+  config_value: scalar
+
+  # Used only for scalar mode.
+  # Options: mean, median, min, max
+  scalar_statistic: mean
+
+  # Change this if your parameter is nested, e.g.:
+  # conductor.conductor_elevation_msl_m
+  config_key: conductor_elevation_msl_m
+
+  overwrite: true
+
+
+pyretechnics_outputs:
+  root_directory: /mnt/data1/MultiHazard/fragility/data/previous_run_lc_fire/fresno-june-lc-run-nlahaye_20240626_120000_exporter_f1cb179721adebd1896a9f1a4561848f/pyretechnics-deck/
+  output_directory: ../work/fire_prepared
+
+  simulation_start_utc: "2024-06-26T00:00:00Z"
+
+  # _001 = simulation start + 0 hours.
+  hour_semantics: one_based_index
+
+  filename_regex: >-
+    ^(?P<parameter>.+)_(?P<percentile>\d{1,3})_(?P<hour>\d+)\.(?:tif|tiff)$
+
+  selected_percentiles: [99]
+  unknown_parameter_action: warn
+  write_standardized_inputs: true
+  derive_fireline_intensity: true
+  write_percentile_event_maximum: true
+  manifest_filename: pyretechnics_output_manifest.csv
+
+  parameters:
+    flame-length:
+      canonical_name: flame_length
+      input_units: m
+      output_units: m
+      resampling: nearest
+      reject_negative: true
+
+    spread-rate:
+      canonical_name: spread_rate
+      input_units: m/min
+      output_units: m/min
+      resampling: nearest
+      reject_negative: true
+
+    crown-fire:
+      canonical_name: crown_fire
+      input_units: category
+      output_units: category
+      resampling: nearest
+      reject_negative: true
+
+    time-of-arrival:
+      canonical_name: time_of_arrival
+      input_units: min_since_initialization
+      output_units: min_since_initialization
+      resampling: nearest
+      reject_negative: false
+
+    hours-since-burned:
+      canonical_name: hours_since_burned
+      input_units: hours
+      output_units: hours
+      resampling: nearest
+      reject_negative: false
+
+    isochrones:
+      canonical_name: isochrones
+      input_units: model_value
+      output_units: model_value
+      resampling: nearest
+      reject_negative: false
+
+era5:
+  bbox:
+    north: 37.0
+    west: -119.5
+    south: 36.5
+    east: -119.0
+
+  netcdf_directory: ../work/era5
+  raster_directory: ../work/era5_rasters
+
+  compression_level: 4
+  keep_grib: false
+
+conductors:
+  # endpoints or vector
+  source_type: endpoints
+
+  prepared_vector: ../work/conductor_input/conductors.gpkg
+  prepared_layer: conductors
+  raster_directory: ../work/conductor
+
+  endpoints:
+    crs: EPSG:4326
+
+    p1:
+      lon: -119.244
+      lat: 36.789
+
+    p2:
+      lon: -119.244
+      lat: 36.7889
+
+    line_id: conductor_001
+    height_m: 50.0
+
+    # REQUIRED: replace with actual properties.
+    diameter_m: 
+    solar_absorptivity: 0.3
+    emissivity: 0.32
+
+  # Retained as an option for future vector input.
+  vector:
+    path: null
+    layer: null
+
+    line_id_field: line_id
+    height_field: height_m
+    diameter_field: diameter_m
+    absorptivity_field: solar_abs
+    emissivity_field: emissivity
+
+    default_height_m: null
+    default_diameter_m: null
+    default_absorptivity: null
+    default_emissivity: null
+
+  # Defaults used when standardized vector fields are null.
+  defaults:
+    # REVIEW: 0.03 m is the manuscript case-study assumption.
+    diameter_m: 0.03
+
+    # REQUIRED: replace with a conductor-specific value.
+    solar_absorptivity: 0.3
+
+  all_touched: true
+  center_only_for_fire_intersection: false
+
+wildfire_heat:
+  # Manuscript case-study assumptions.
+  convective_coefficient: 0.1
+  radiative_fraction: 0.15
+  fire_front_length_m: 100.0
+  ground_offset_m: 0.0
+  fire_normal_angle_deg: 0.0
+
+
+wind:
+  # Required because the conductor is 50 m above ground while ERA5
+  # wind components are at 10 m.
+  adjust_to_conductor_height: true
+
+  # power or log
+  method: power
+
+  # REVIEW: Generic assumption, not supplied by the manuscript.
+  power_exponent: 0.142857
+
+  # Required only for method: log.
+  roughness_length_m: null
+
+  calm_threshold_m_s: 0.1
+
+solar:
+  # Provisional approximation using ERA5 hourly mean SSRD.
+  baseline_method: era5_ssrd_approximation
+
+rating:
+  # REQUIRED conductor-specific values.
+  maximum_surface_temperature_c: 75.0
+  average_strand_temperature_c: 75.0
+  emissivity: 0.32
+
+  # A scalar elevation above mean sea level or a raster filename.
+  # This is not the 50 m conductor height above local ground.
+  conductor_elevation_msl_m: null
+
+  resistance:
+    low_temperature_c: null
+    low_resistance_ohm_m: null
+    high_temperature_c: null
+    high_resistance_ohm_m: null
+
+  baseline_output_directory: ../work/rating/baseline
+  wildfire_output_directory: ../work/rating/wildfire
+
+
+  unknown_parameter_action: warn
+  write_standardized_inputs: true
+  derive_fireline_intensity: true
+  write_percentile_event_maximum: true
+
+  output_directory: ../work/fire_prepared
+  manifest_filename: pyretechnics_output_manifest.csv
+

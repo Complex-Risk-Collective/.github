@@ -18,12 +18,20 @@ PATH = "/mnt/data1/MultiHazard/"
 OUT_REL_PATH = "data/daily/firms_fire/"
 
 FIRES_CSV = [
-    "/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_J1V-C2_731498.csv",
-    "/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_M-C61_731496.csv",
-    "/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_SV-C2_731500.csv",
-    "/mnt/data1/MultiHazard/data/spread_data_firms/fire_nrt_J2V-C2_731499.csv",
-    "/mnt/data1/MultiHazard/data/spread_data_firms/fire_nrt_LS_731497.csv",
+    #"/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_J1V-C2_731498.csv",
+    #"/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_M-C61_731496.csv",
+    #"/mnt/data1/MultiHazard/data/spread_data_firms/fire_archive_SV-C2_731500.csv",
+    #"/mnt/data1/MultiHazard/data/spread_data_firms/fire_nrt_J2V-C2_731499.csv",
+    #"/mnt/data1/MultiHazard/data/spread_data_firms/fire_nrt_LS_731497.csv",
+
+    "/mnt/data1/MultiHazard/data/spread_data_firms/2025/fire_archive_J1V-C2_767363.csv",
+    "/mnt/data1/MultiHazard/data/spread_data_firms/2025/fire_nrt_J2V-C2_767364.csv",
+    "/mnt/data1/MultiHazard/data/spread_data_firms/2025/fire_nrt_LS_767362.csv",
+    "/mnt/data1/MultiHazard/data/spread_data_firms/2025/fire_archive_M-C61_767361.csv",
+    "/mnt/data1/MultiHazard/data/spread_data_firms/2025/fire_archive_SV-C2_767365.csv",
+
 ]
+
 
 # ------------------------
 # Load and concatenate FIRMS CSVs
@@ -99,8 +107,8 @@ print("Completed timestamp build and initial agg.")
 # Create analysis grid
 # ------------------------
 
-start_date = "2023-01-01"
-end_date = "2024-12-31"
+start_date = "2025-01-01"
+end_date = "2026-06-27"
 
 start_ts = pd.Timestamp(start_date)
 end_ts = pd.Timestamp(end_date)
