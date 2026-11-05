@@ -11,6 +11,11 @@ v2 changes (Step 0 fixes):
            (was compat='override', which silently keeps the first value).
   [FIX 11] Files record processing_version = "v2" as an attribute (filenames
            unchanged; write v2 output to a separate directory from v1).
+  [FIX 12] Temperatures (t2m, t2m_min, t2m_max, d2m, d2m_max, heat_index_max)
+           are stored in degC instead of K. RTMA is still gridded in K (its
+           RH / heat-index formulas expect K); the conversion happens here,
+           after gridding. Existing Kelvin files are converted in place on the
+           next run (no re-download). File attribute: temperature_units = "degC".
 """
 
 import os
@@ -37,8 +42,8 @@ from data_processing.terrestrial.variable_metadata import apply_metadata, write_
 PATH = "/Users/marchett/Documents/Disasters/data/V2"
 region = "CONUS"
 
-lat_bounds = [25, 50]
-lon_bounds = [-125, -65]
+lat_bounds = [19, 50]
+lon_bounds = [-125, -64]
 
 swdi_variables = ["nx3tvs", "nx3hail", "nx3structure"]
 
@@ -72,7 +77,7 @@ mrms_variables = [
 ]
 
 grid_template = AnalysisGridTemplate(
-    grid_file=f"{PATH}/analysis_grid_{region}_50km.nc",
+    grid_file=f"{PATH}/analysis_grid_{region}_50km_v1.nc",
     lat_bounds=lat_bounds,
     lon_bounds=lon_bounds,
     res_km=50,
@@ -85,6 +90,33 @@ grid_template = AnalysisGridTemplate(
 # ------------------------
 
 LATLON_NAMES = ["lat", "lon", "LAT", "LON", "latitude", "longitude"]
+
+# ------------------------
+# [FIX 12] Kelvin -> Celsius
+# ------------------------
+
+TEMPERATURE_VARS = ("t2m", "t2m_min", "t2m_max", "d2m", "d2m_max", "heat_index_max")
+TEMPERATURE_UNITS = "degC"
+
+
+def to_celsius(ds):
+    """Convert RTMA temperature fields from K to degC (skips fields already in degC)."""
+    for v in TEMPERATURE_VARS:
+        if v in ds and ds[v].attrs.get("units", "K") != TEMPERATURE_UNITS:
+            attrs = dict(ds[v].attrs)
+            ds[v] = (ds[v] - 273.15).astype("float32")
+            ds[v].attrs = {**attrs, "units": TEMPERATURE_UNITS}
+    ds.attrs["temperature_units"] = TEMPERATURE_UNITS
+    return ds
+
+
+def convert_file_to_celsius(path):
+    """Rewrite an existing daily file with temperatures in degC (no re-download)."""
+    with xr.open_dataset(path) as old:
+        ds = old.load()
+    ds = to_celsius(ds)
+    encoding = {v: {"zlib": True, "complevel": 4} for v in ds.data_vars}
+    atomic_to_netcdf(ds, path, encoding=encoding)
 
 
 def conform(ds, name, grid, time_index, fill_value=np.nan):
@@ -128,8 +160,13 @@ def process_one_day(date):
         with xr.open_dataset(output_file) as old:
             old_version = old.attrs.get("processing_version")
             old_failed = int(old.attrs.get("n_failed_files", 0)) + int(old.attrs.get("rtma_n_failed_files", 0))
+            old_temp_units = old.attrs.get("temperature_units", "K")
         if old_version == PROCESSING_VERSION and old_failed == 0:
-            print(f"✓ Already exists: {output_file}")
+            if old_temp_units != TEMPERATURE_UNITS:            # [FIX 12]
+                convert_file_to_celsius(output_file)
+                print(f"✓ Converted temperatures to {TEMPERATURE_UNITS}: {output_file}")
+            else:
+                print(f"✓ Already exists: {output_file}")
             return
         print(f"Rebuilding {output_file}: version {old_version} (current {PROCESSING_VERSION}), "
               f"{old_failed} failed source file(s)")
@@ -172,6 +209,7 @@ def process_one_day(date):
     # ------------------------ RTMA ------------------------
     print("Downloading & aggregating RTMA...")
     ds_rtma = download_and_grid_rtma(day_start, day_end, grid_template, root=PATH)
+    ds_rtma = to_celsius(ds_rtma)                                  # [FIX 12]
     ds_rtma = conform(ds_rtma, "RTMA", grid_template, time_index)
 
     # ------------------------ MERGE & SAVE ------------------------
@@ -188,14 +226,15 @@ def process_one_day(date):
         "created": datetime.now(timezone.utc).isoformat(),
         "processing_version": PROCESSING_VERSION,
         "missing_convention": "NaN = no data/no coverage; 0 = observed zero",
+        "temperature_units": TEMPERATURE_UNITS,                    # [FIX 12]
     })
 
     os.makedirs(f"{PATH}/daily", exist_ok=True)
     encoding = {v: {"zlib": True, "complevel": 4} for v in ds_daily.data_vars}
     ds_daily = apply_metadata(ds_daily)          # long_name / units / description
     atomic_to_netcdf(ds_daily, output_file, encoding=encoding)
-    if not (Path(PATH) / "daily" / "DATA_DICTIONARY.md").exists():
-        write_data_dictionary(ds_daily, Path(PATH) / "daily")
+    # rewritten every run so it always matches the current file contents/units
+    write_data_dictionary(ds_daily, Path(PATH) / "daily")
     print(f"Saved {output_file}")
 
     del ds_swdi, ds_mrms, ds_rtma, ds_daily

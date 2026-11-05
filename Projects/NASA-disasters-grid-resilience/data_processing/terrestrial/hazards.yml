@@ -1,0 +1,100 @@
+# Hazard definitions for hazard_flags.py
+#
+# Each flag is a list of conditions; a flag is 1 if ANY condition is met (OR),
+# 0 if none is met and at least one has data, -1 if none has data.
+#
+# condition fields
+#   var        variable name in the daily file
+#   op         one of >=  >  <=  <
+#   threshold  in the variable's own units (see DATA_DICTIONARY.md);
+#              temperatures are in degC
+#   validity   name of an entry under `validity` below; omit for no check
+#
+# hazards  counted in hazard_count
+# context  storm-intensity indicators, NOT counted (they drive several hazards
+#          at once and would double count); used later to condition,
+#          e.g. P(hail | convective storm)
+
+min_valid: 0.5          # grid cell is "no data" when its valid share is below this
+
+validity:
+  mrms:                 # each MRMS variable's own valid share
+    valid_frac: "{var}_valid_frac"
+  rtma:                 # one valid share for all RTMA variables
+    valid_frac: rtma_valid_frac
+  flash:                # FLASH products are NaN where it is not raining, so
+                        # coverage comes from 1-h rain and NaN counts as "not met"
+    reference: MultiSensor_QPE_01H_Pass2_00.00
+
+hazards:
+  hail:
+    description: 60-min max MESH >= 25 mm (1 in, severe hail)
+    conditions:
+      - {var: MESH_Max_60min_00.50, op: ">=", threshold: 25.0, validity: mrms}
+
+  wind_gust:
+    description: RTMA 10 m gust >= 25.7 m/s (50 kt) at HH:00; large-scale wind, misses short storm gusts
+    conditions:
+      - {var: i10fg, op: ">=", threshold: 25.7, validity: rtma}
+
+  wind_storm:
+    description: "thunderstorm/downburst wind potential: VIL density >= 3.5 g m-3 (radar proxy)"
+    conditions:
+      - {var: VIL_Density_00.50, op: ">=", threshold: 3.5, validity: mrms}
+
+  rotation:
+    description: 60-min rotation track >= 0.015 s-1 (values stored in 1e-3 s-1)
+    conditions:
+      - {var: RotationTrackML60min_00.50, op: ">=", threshold: 15.0, validity: mrms}
+
+  lightning:
+    description: CG flash density (15-min avg) > 0
+    conditions:
+      - {var: NLDN_CG_015min_AvgDensity_00.00, op: ">", threshold: 0.0, validity: mrms}
+
+  flash_flood:
+    description: rain >= 100% of flash-flood guidance OR 1-h rain ARI >= 10 yr
+    conditions:
+      - {var: FLASH_QPE_FFGMAX_00.00, op: ">=", threshold: 100.0, validity: flash}
+      - {var: FLASH_QPE_ARI01H_00.00, op: ">=", threshold: 10.0, validity: flash}
+
+  heavy_rain_72h:
+    description: 72-h QPE >= 100 mm (prolonged rain / saturation)
+    conditions:
+      - {var: MultiSensor_QPE_72H_Pass2_00.00, op: ">=", threshold: 100.0, validity: mrms}
+
+  heat:
+    description: max heat index >= 40.6 C (105 F, NWS heat advisory level)
+    conditions:
+      - {var: heat_index_max, op: ">=", threshold: 40.6, validity: rtma}     # degC
+
+  fire_weather:
+    description: RH <= 15% with strong wind on >= 25% of cell
+    conditions:
+      - {var: fireweather_frac, op: ">=", threshold: 0.25, validity: rtma}
+
+  freeze:
+    description: min 2 m temperature <= 0 C
+    conditions:
+      - {var: t2m_min, op: "<=", threshold: 0.0, validity: rtma}             # degC
+
+  snow:
+    description: snow on >= 10% of cell
+    conditions:
+      - {var: PrecipFlag_frac_snow, op: ">=", threshold: 0.10, validity: mrms}
+
+  low_visibility:
+    description: visibility < 1 km on >= 25% of cell
+    conditions:
+      - {var: vis_frac_lt1km, op: ">=", threshold: 0.25, validity: rtma}
+
+context:
+  convective_storm:
+    description: composite reflectivity >= 50 dBZ
+    conditions:
+      - {var: MergedReflectivityComposite_00.50, op: ">=", threshold: 50.0, validity: mrms}
+
+  deep_convection:
+    description: 50 dBZ echo top >= 8 km (strong, tall cores)
+    conditions:
+      - {var: EchoTop_50_00.50, op: ">=", threshold: 8.0, validity: mrms}

@@ -2,8 +2,8 @@
 """
 Exploratory analysis and quality check of the gridded daily weather files.
 
-Reads every daily/weather_<region>_<YYYYMMDD>.nc in a folder and writes, to an
-output folder:
+Reads every daily/weather_<region>_<YYYYMMDD>.nc in a folder and writes, to
+<out>/quality:
 
   summary.csv              one row per variable: units, % missing, % zero, quantiles,
                            physical-range violations, leftover placeholder values,
@@ -11,21 +11,17 @@ output folder:
   flags.csv                one row per problem found (what to look at first)
   completeness.png         % of grid cells with data, per variable and day
   coverage_maps.png        share of hours with data per cell (radar, RTMA, SWDI)
-  dist_<group>.png         value distributions per variable
-  maps_<group>.png         monthly mean (environment) or monthly max (hazard) per cell
-  exceedance_maps.png      hours above a hazard threshold per cell
-  exceedance_daily.png     share of CONUS above each threshold, per day
-  diurnal.png              threshold exceedance by local solar hour
-  correlation.png          Spearman correlation, all hours and storm hours
-  redundant_pairs.csv      variable pairs with |r| >= 0.9
+  dist_<group>.png         value distributions per variable, coloured by data source
   report.html              all of the above on one page
+
+Maps, percentile exceedances and correlation are in eda_overview.py; fixed hazard
+thresholds are in hazard_flags.py / hazard_maps.py. The map, exceedance and
+correlation functions stay here because eda_overview.py imports them.
 
 Usage
     python -m data_processing.terrestrial.eda_daily --daily-dir DATA/daily --out DATA/eda
     python eda_daily.py --daily-dir DATA/daily --out DATA/eda --start 2024-06-01 --end 2024-06-30
 
-Thresholds in HAZARD_THRESHOLDS are starting points for a first look, not final
-hazard definitions.
 """
 
 import argparse
@@ -68,7 +64,7 @@ GROUP_COLOR = {   # same validated palette as the coverage diagram
 
 # Physical ranges in the units stored in the file (short names; regex -> (lo, hi))
 RANGES = [
-    (r"^(t2m|t2m_min|t2m_max|d2m|d2m_max|heat_index_max)$", 200, 340),     # K
+    (r"^(t2m|t2m_min|t2m_max|d2m|d2m_max|heat_index_max)$", -75, 70),      # degC
     (r"^rh2_min$", 0, 100),
     (r"^(sh2|sh2_max)$", 0, 0.04),
     (r"^sp$", 45000, 110000),                                               # Pa
@@ -91,6 +87,8 @@ RANGES = [
     (r"^PROB$", 0, 100),
 ]
 
+TEMPERATURE_VARS = ("t2m", "t2m_min", "t2m_max", "d2m", "d2m_max", "heat_index_max")   # degC
+
 # Starting-point thresholds for a first look at hazard frequency (file units).
 HAZARD_THRESHOLDS = [
     # label, short variable name, operator, value, note
@@ -101,8 +99,8 @@ HAZARD_THRESHOLDS = [
     ("Flood guidance exceeded", "FLASH_QPE_FFGMAX", ">=", 100, "rain ≥ 100 % of flash-flood guidance"),
     ("Rain ≥ 10-yr", "FLASH_QPE_ARIMAX", ">=", 10, "recurrence interval, years"),
     ("24-h rain ≥ 50 mm", "MultiSensor_QPE_24H_Pass2", ">=", 50, "mm"),
-    ("Heat index ≥ 103 °F", "heat_index_max", ">=", 312.6, "K"),
-    ("Freezing", "t2m_min", "<=", 273.15, "K"),
+    ("Heat index ≥ 103 °F", "heat_index_max", ">=", 39.4, "°C"),
+    ("Freezing", "t2m_min", "<=", 0.0, "°C"),
     ("Fire weather", "fireweather_frac", ">=", 0.25, "≥ 25 % of cell"),
     ("Fog", "vis_frac_lt1km", ">=", 0.5, "≥ 50 % of cell under 1 km"),
     ("Snow", "PrecipFlag_frac_snow", ">=", 0.25, "≥ 25 % of cell"),
@@ -164,7 +162,10 @@ class Month:
         self.missing_in = {v: [Path(f).name for f, ds in zip(files, self.dss) if v not in ds]
                            for v in names}
         self.time = pd.DatetimeIndex(np.concatenate([ds["time"].values for ds in self.dss]))
-        self.attrs = {v: next(ds[v].attrs for ds in self.dss if v in ds) for v in names}
+        self.attrs = {v: dict(next(ds[v].attrs for ds in self.dss if v in ds)) for v in names}
+        for v in TEMPERATURE_VARS:            # older files in K are converted on load
+            if v in self.attrs:
+                self.attrs[v]["units"] = "degC"
         self.dims = {v: next(ds[v].dims for ds in self.dss if v in ds) for v in names}
 
     def has_time(self, v):
@@ -177,7 +178,10 @@ class Month:
         parts = []
         for ds in self.dss:
             if v in ds:
-                parts.append(ds[v].values.astype("float32"))
+                a = ds[v].values.astype("float32")
+                if v in TEMPERATURE_VARS and ds[v].attrs.get("units", "K") == "K":
+                    a = a - 273.15                     # older Kelvin file -> degC
+                parts.append(a)
             else:
                 parts.append(np.full((ds.sizes["time"], len(self.y), len(self.x)), np.nan, "float32"))
         return np.concatenate(parts, axis=0)
@@ -665,12 +669,13 @@ def g4(x):
     return f"{x:.4g}"
 
 
-def write_report(out, month, df, flags, dist_files, map_files, exc_files, exc_tab, corr_file, pairs):
+def write_report(out, month, df, flags, dist_files, map_files=(), exc_files=(), exc_tab=None,
+                 corr_file=None, pairs=None):
     t0, t1 = month.time.min(), month.time.max()
     expected = pd.date_range(t0.normalize(), t1.normalize() + pd.Timedelta(hours=23), freq="h")
     missing_hours = len(expected.difference(month.time))
     dup = int(month.time.duplicated().sum())
-    parts = [f"<h1>Daily weather files: exploratory analysis</h1>"
+    parts = [f"<h1>Daily weather files: quality check</h1>"
              f"<p class=muted>{len(month.files)} files · {t0:%Y-%m-%d} to {t1:%Y-%m-%d} · "
              f"{len(month.time)} hours ({missing_hours} missing, {dup} duplicated) · "
              f"grid {len(month.y)} × {len(month.x)} cells · {len(df)} variables</p>"]
@@ -704,10 +709,11 @@ def write_report(out, month, df, flags, dist_files, map_files, exc_files, exc_ta
     parts.append("<section><h2>Distributions</h2><p class=muted>For mostly-zero variables only the "
                  "non-zero values are shown, on a log count axis.</p>"
                  + "".join(f'<img src="{f}" alt="{html.escape(g)}">' for g, f in dist_files) + "</section>")
-    parts.append("<section><h2>Maps</h2><p class=muted>Monthly maximum for hazard variables "
-                 "(cell statistic max), monthly mean for the others. Colour range is the 2nd to 98th "
-                 "percentile of each map.</p>"
-                 + "".join(f'<img src="{f}" alt="{html.escape(g)}">' for g, f in map_files) + "</section>")
+    if map_files:
+        parts.append("<section><h2>Maps</h2><p class=muted>Monthly maximum for hazard variables "
+                     "(cell statistic max), monthly mean for the others. Colour range is the 2nd to 98th "
+                     "percentile of each map.</p>"
+                     + "".join(f'<img src="{f}" alt="{html.escape(g)}">' for g, f in map_files) + "</section>")
     if exc_files:
         tfmt = dict(pct_cell_hours=lambda v: f"{v:.3f}")
         parts.append("<section><h2>Hazard thresholds: first look</h2><p class=muted>Starting-point "
@@ -726,7 +732,7 @@ def write_report(out, month, df, flags, dist_files, map_files, exc_files, exc_ta
                      + (table_html(pairs, left=("sample", "var_a", "var_b")) if len(pairs) else
                         "<p>No pairs with |r| ≥ 0.9.</p>") + "</section>")
     (out / "report.html").write_text(
-        f"<!doctype html><meta charset=utf-8><title>Daily data EDA</title><style>{CSS}</style>"
+        f"<!doctype html><meta charset=utf-8><title>Daily data quality</title><style>{CSS}</style>"
         f"<main>{''.join(parts)}</main>", encoding="utf-8")
 
 
@@ -744,7 +750,7 @@ def run(daily_dir, out, start=None, end=None, pattern="weather_*.nc"):
                  and (end is None or day(f) <= pd.Timestamp(end))]
     if not files:
         raise SystemExit(f"No files matching {pattern} in {daily_dir}")
-    out = Path(out)
+    out = Path(out) / "quality"
     out.mkdir(parents=True, exist_ok=True)
     print(f"{len(files)} daily files")
 
@@ -780,15 +786,8 @@ def run(daily_dir, out, start=None, end=None, pattern="weather_*.nc"):
     fig_coverage(month, cache, out)
     print("  figures: distributions")
     dist_files = fig_distributions(df, cache, out)
-    print("  figures: maps")
-    map_files = fig_maps(df, month, cache, out)
-    print("  figures: thresholds, diurnal cycle")
-    exc_files, exc_tab = fig_exceedance(month, cache, out)
-    print("  figures: correlation")
-    corr_file, pairs = fig_correlation(df, month, cache, out)
 
-    write_report(out, month, df, flags, dist_files, map_files, exc_files, exc_tab, corr_file,
-                 pairs if pairs is not None else pd.DataFrame())
+    write_report(out, month, df, flags, dist_files)
     month.close()
     print(f"Done: {len(flags)} item(s) flagged. Open {out / 'report.html'}")
     return df, flags
@@ -797,16 +796,16 @@ def run(daily_dir, out, start=None, end=None, pattern="weather_*.nc"):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--daily-dir", help="folder with weather_<region>_<date>.nc files")
-    ap.add_argument("--out", help="output folder for figures, tables and report")
+    ap.add_argument("--out", help="EDA folder; results go to <out>/quality")
     ap.add_argument("--start", help="first day to include, YYYY-MM-DD")
     ap.add_argument("--end", help="last day to include, YYYY-MM-DD")
     ap.add_argument("--pattern", default="weather_*.nc")
     a = ap.parse_args()
     
-    a.daily_dir="/Users/marchett/Documents/Disasters/data/V2/daily"
-    a.out="/Users/marchett/Documents/Disasters/data/V2/eda"
+    a.daily_dir="/Volumes/MLIA_active_data/gridresilience/data/terrestrial/V2/daily"
+    a.out="/Volumes/MLIA_active_data/gridresilience/data/terrestrial/V2/eda"
     a.start="2024-06-01"
-    a.end="2024-06-01"
+    a.end="2024-06-30"
     
     
     run(a.daily_dir, a.out, a.start, a.end, a.pattern)

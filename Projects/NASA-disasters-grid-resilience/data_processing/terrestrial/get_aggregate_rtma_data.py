@@ -18,6 +18,10 @@ v2 changes (Step 0 fixes):
   [v2.1]  Several statistics per variable (RTMA_OUTPUTS): min/max for
           temperature and moisture, median + min + fraction-below-threshold
           for visibility and ceiling.
+
+Units: this module returns temperatures (t2m*, d2m*, heat_index_max) in K,
+because relative_humidity() and heat_index() work on K. pipeline.py converts
+them to degC before saving (FIX 12).
 """
 
 import os

@@ -7,14 +7,15 @@ Tornado / rotation, ...) with the dataset (MRMS / RTMA / SWDI) in brackets.
 
 Writes to --out:
   cells_with_data.png     bar chart: grid cells with any data / with any non-zero value
-  histograms_<ds>.png     value distribution of every variable  (<ds> = mrms, rtma; swdi if it has data)
-  max_maps_<ds>.png       highest value of the period per cell
   pctl_maps_<ds>.png      hours at/above the variable's p90 (at/below p10 for low-is-hazard variables)
   pctl_by_hour_<ds>.png   the same exceedances counted by local solar hour
   hazard_<name>.png       one page per hazard: histogram | max map | p90 map | p90 hours
   correlation.png         Spearman correlation, all hours and storm hours
   thresholds.csv          the percentile threshold used for each variable
   overview.html           all figures on one page
+
+Data-quality checks and the full set of distributions are in eda_daily.py
+(<out>/quality); histograms and max maps here appear only on the hazard pages.
 
 Maps carry state, province and country outlines (Natural Earth, 1:50m). They are
 downloaded once from GitHub (~5 MB) into --boundaries-dir (default
@@ -595,14 +596,12 @@ def run(daily_dir, out, start=None, end=None, pct=90, pattern="weather_*.nc",
     if other:
         groups.append(("Other", "_other", other))
 
-    res = {"histograms": [], "max maps": [], "percentile maps and hours": []}
+    res = {"percentile maps and hours": []}
     print("  cells with data")
     res["cells with data"] = fig_cells_with_data(cat, cache, month, out)
     thr_rows = []
     for ds_name, tag, sub in groups:
-        print(f"  {ds_name}: histograms, max maps, percentiles")
-        res["histograms"].append(fig_histograms(sub, cache, out, tag, ds_name))
-        res["max maps"].append(fig_max_maps(sub, cache, month, out, tag, ds_name))
+        print(f"  {ds_name}: percentiles")
         files, rows = fig_percentile(sub, cache, month, out, pct, tag, ds_name)
         res["percentile maps and hours"] += files
         thr_rows += rows
@@ -617,10 +616,6 @@ def run(daily_dir, out, start=None, end=None, pct=90, pattern="weather_*.nc",
         ("Grid cells with data", "Pale bar: cells with at least one valid value over the period. "
          "Dark bar: cells with at least one non-zero value (where something happened).",
          [res["cells with data"]]),
-        ("Distributions", "MRMS and RTMA separately. For mostly-zero variables only values above "
-         "the floor are shown, on a log count axis.", res["histograms"]),
-        ("Highest value per cell", "Maximum over the period at each cell, MRMS and RTMA separately.",
-         res["max maps"]),
         (f"Above the {pct:g}th percentile", "Threshold per variable in thresholds.csv. Maps count "
          "hours above it per cell; bars count cell-hours above it by local solar hour.",
          res["percentile maps and hours"]),
@@ -644,9 +639,9 @@ if __name__ == "__main__":
                     help="where the Natural Earth outlines are cached; '' to skip them")
     a = ap.parse_args()
     
-    # a.daily_dir="/Users/marchett/Documents/Disasters/data/V2/daily"
-    # a.out="/Users/marchett/Documents/Disasters/data/V2/eda"
-    # a.start="2024-06-01"
-    # a.end="2024-06-01"
+    a.daily_dir="/Volumes/MLIA_active_data/gridresilience/data/terrestrial/V2/daily"
+    a.out="/Volumes/MLIA_active_data/gridresilience/data/terrestrial/V2/eda"
+    a.start="2024-06-01"
+    a.end="2024-06-30"
     
     run(a.daily_dir, a.out, a.start, a.end, a.pct, a.pattern, a.boundaries_dir)

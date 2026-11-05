@@ -16,7 +16,7 @@ import rioxarray
 
 class AnalysisGridTemplate:
     def __init__(self, grid_file="analysis_grid.nc",
-                 lat_bounds=(24, 50),
+                 lat_bounds=(19, 50),
                  lon_bounds=(-125, -66),
                  res_km=50,
                  epsg=5070):
@@ -154,6 +154,16 @@ class AnalysisGridTemplate:
         return lon_grid, lat_grid
 
 
+
+if __name__ == "__main__":
+    grid_template = AnalysisGridTemplate(
+        grid_file="/Volumes/MLIA_active_data/gridresilience/data/terrestrial/analysis_grid_CONUS_50km_v1.nc",
+        lat_bounds=(19, 50),
+        lon_bounds=(-125, -66),
+        res_km=50,
+        epsg=5070,
+    )
+    print(grid_template.grid)
 
 
 # Define lat/lon bounds for CONUS
