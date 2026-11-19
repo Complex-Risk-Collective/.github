@@ -1,0 +1,120 @@
+{
+ "event_id": "gannon_2024",
+ "title": "Gannon geomagnetic storm, May 2024",
+ "start": "2024-05-08T00:00:00Z",
+ "n_hours": 192,
+ "step_hours": 1,
+ "grid": {
+  "nx": 104,
+  "ny": 55,
+  "x0_km": -2917.5417732214532,
+  "y0_km": 666.7602816442393,
+  "dx_km": 50.0,
+  "dy_km": 50.0,
+  "crs": "EPSG:5070"
+ },
+ "variables": [
+  {
+   "key": "space_weather",
+   "label": "Geoelectric field |E| (NOAA SWPC)",
+   "units": "mV/km",
+   "family": "space_weather",
+   "direction": ">=",
+   "threshold": 1000.0,
+   "color_slot": 7,
+   "ramp": "sequential",
+   "file": "space_weather.f32",
+   "source": "|E| = hypot(Ex, Ey), hourly max of 1-min values, 8 daily files",
+   "stats": {
+    "valid_frac": 0.6161,
+    "min": 0.12997302412986755,
+    "p01": 0.765307011604309,
+    "p50": 10.543370246887207,
+    "p99": 654.8716491699224,
+    "p999": 1378.0390625,
+    "max": 3945.646240234375,
+    "pos_frac": 1.0,
+    "pos_p99": 654.8716430664062
+   }
+  },
+  {
+   "key": "hail_swdi",
+   "label": "Radar hail size (NEXRAD level 3)",
+   "units": "in",
+   "family": "terrestrial",
+   "direction": ">=",
+   "threshold": 1.0,
+   "color_slot": 3,
+   "ramp": "sequential",
+   "file": "hail_swdi.f32",
+   "source": "47,711 SWDI records (nx3hail_20240508_20240515.csv), hourly max MAXSIZE per cell",
+   "stats": {
+    "valid_frac": 1.0,
+    "min": 0.0,
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "p999": 1.5,
+    "max": 4.0,
+    "pos_frac": 0.0034,
+    "pos_p99": 4.0
+   }
+  },
+  {
+   "key": "tvs",
+   "label": "Tornado vortex signatures (NEXRAD level 3)",
+   "units": "count / h",
+   "family": "terrestrial",
+   "direction": ">=",
+   "threshold": 1.0,
+   "color_slot": 5,
+   "ramp": "sequential",
+   "file": "tvs.f32",
+   "source": "4,094 SWDI records (nx3tvs_20240508_20240515.csv), hourly count per cell",
+   "stats": {
+    "valid_frac": 1.0,
+    "min": 0.0,
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "p999": 0.0,
+    "max": 91.0,
+    "pos_frac": 0.0008,
+    "pos_p99": 46.95000076293945
+   }
+  }
+ ],
+ "missing": [
+  {
+   "key": "precip_1h",
+   "label": "1-h gauge-corrected precipitation",
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+  },
+  {
+   "key": "gust",
+   "label": "10-m wind gust",
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+  },
+  {
+   "key": "t2m",
+   "label": "2-m temperature",
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+  },
+  {
+   "key": "hail",
+   "label": "Estimated hail size (MESH, 50 km cell mean)",
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+  },
+  {
+   "key": "flash_ari",
+   "label": "Rainfall recurrence interval (FLASH ARI max, cell mean)",
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+  },
+  {
+   "key": "frp",
+   "label": "Active fire (fire radiative power)",
+   "reason": "FileNotFoundError: no fires_analysis_grid_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/fires_analysis_grid_2024event"
+  }
+ ],
+ "built": "2026-11-18T05:25Z"
+}

@@ -1,0 +1,16 @@
+[
+ {
+  "event_id": "marapr_2023",
+  "title": "March\u2013April 2023 multi-hazard event",
+  "start": "2023-03-26T00:00:00Z",
+  "n_hours": 336,
+  "n_variables": 8
+ },
+ {
+  "event_id": "gannon_2024",
+  "title": "Gannon geomagnetic storm, May 2024",
+  "start": "2024-05-08T00:00:00Z",
+  "n_hours": 192,
+  "n_variables": 3
+ }
+]

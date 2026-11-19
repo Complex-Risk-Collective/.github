@@ -1,0 +1,19 @@
+layer_key,family,storyline_stage,status,n_features,geo_precision,source,notes
+overlap,multi_hazard_overlap,1+2_overlap,loaded,75.0,grid_50km,derived,"families considered: space_weather, convective, terrestrial_weather, wildfire"
+hazard_space_weather,space_weather,1_space_weather_forcing,loaded,242.0,grid_50km,mcgranaghan-rawdata.nc,"Eh hourly max per site, nearest site within 75 km; active in 122 of 336 hours"
+hazard_convective,convective,2_terrestrial_conditions,loaded,196.0,grid_50km,swdi_nx3_hourly_50km_conus.nc,"pre-gridded SWDI file, regridded (nearest) to the analysis grid; active in 46 of 336 hours"
+hazard_terrestrial_weather,terrestrial_weather,2_terrestrial_conditions,loaded,156.0,grid_50km,weather_CONUS daily grids,14/14 daily files; active in 77 of 336 hours
+hazard_wildfire,wildfire,2_terrestrial_conditions,loaded,1317.0,grid_50km,fires_analysis_grid daily grids,14/14 daily files; active in 336 of 336 hours
+grid_component_outages,grid_stress,3_grid_stress,not_yet_available,,,Component-level outages with locations,TADS rows are anonymized (AliasID); needs the raw TADS extract or utility OMS data with substation/line IDs.
+grid_eagle_i,grid_stress,3_grid_stress,missing_input,,county,,Eagle-I file not found: /Users/nza/Downloads/mh_notebook_data/eaglei_outages_2023.csv. Copy eaglei_outages_YYYY.csv into the data cache to add county outages.
+grid_gic_measurements,grid_stress,3_grid_stress,not_yet_available,,,Measured GIC (NERC GIC Gannon dataset),Exists on a collaborator machine (NERC_GIC_Gannon_Waghule); not yet ingested.
+grid_pjm_operations,grid_stress,3_grid_stress,not_yet_available,,,PJM operations data,PJM notebooks are exploratory; no event extract yet.
+grid_tads_regions,grid_stress,3_grid_stress,loaded,255.0,nerc_region,outputs/tads_ac_multi_trip_per_file.csv,321 trips in window; 0 trips with unmapped region code []; Circuits with >1 trip in the TADS file only (lower bound); component locations anonymized → NERC region; times assumed UTC; FRCC→SERC and SPP→MRO on a legacy boundary map
+grid_thd_sites,grid_stress,3_grid_stress,partial,8.0,point,outputs/thd_conus_city_map.png,sensor locations only; THD CSVs not found in None
+grid_utility_warnings,grid_stress,3_grid_stress,not_yet_available,,,Utility warning / conservative-operations announcements,No source identified yet.
+grid_voltage_frequency,grid_stress,3_grid_stress,not_yet_available,,,"Voltage / frequency (Whisker Labs Frequency, sags, swells)",JSON files exist on a collaborator machine (Whisker_Labs_Data_March2026); copy them into the data cache to add.
+context_cpuc_psps_stats,context,4_context,context_only,,,outputs/cpuc_psps_statistical_analysis.xlsx,summary statistics only (no per-event geometry or time); not mapped
+context_kp_dst,space_weather,4_context,not_yet_available,,,Kp / Dst indices,Global indices; storyline uses the CONUS max |E| from the NOAA product instead.
+context_psps_circuits,context,4_context,context_only,0.0,circuit_polygon,outputs/circuits_only_sanity_map.html,static; outside the event states
+context_social_vulnerability,context,4_context,not_yet_available,,,Social vulnerability (e.g. CDC SVI),Not yet ingested.
+unknown_coverage,unknown,unknown,loaded,8.0,grid_50km / aoi,derived,spatial and temporal gaps per loaded hazard family
