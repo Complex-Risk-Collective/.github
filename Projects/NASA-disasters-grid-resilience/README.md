@@ -70,4 +70,7 @@ This project is intended to be a contributing part of a **Knowledge Commons** th
 
 This section will be populated as the project develops.
 
+* `hazard_explorer/`: a local browser app for setting hazard thresholds and flagging places where hazards coincide in space and time, with a time slider. Data for the March–April 2023 and Gannon (May 2024) events is included; see its README.
+* `notebooks/multihazard_arcgis_time_layers_v1.ipynb`: builds time-enabled hazard and overlap polygons for an event and publishes them to an ArcGIS web map. Results are in `notebooks/outputs/`. Besides `src/environment.yml` it needs `arcgis`, `rasterio` and `affine`.
+
 

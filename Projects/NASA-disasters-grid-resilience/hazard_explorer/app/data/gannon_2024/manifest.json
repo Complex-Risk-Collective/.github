@@ -88,32 +88,32 @@
   {
    "key": "precip_1h",
    "label": "1-h gauge-corrected precipitation",
-   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in ~/Downloads/mh_notebook_data/weather_CONUS_2024event"
   },
   {
    "key": "gust",
    "label": "10-m wind gust",
-   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in ~/Downloads/mh_notebook_data/weather_CONUS_2024event"
   },
   {
    "key": "t2m",
    "label": "2-m temperature",
-   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in ~/Downloads/mh_notebook_data/weather_CONUS_2024event"
   },
   {
    "key": "hail",
    "label": "Estimated hail size (MESH, 50 km cell mean)",
-   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in ~/Downloads/mh_notebook_data/weather_CONUS_2024event"
   },
   {
    "key": "flash_ari",
    "label": "Rainfall recurrence interval (FLASH ARI max, cell mean)",
-   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/weather_CONUS_2024event"
+   "reason": "FileNotFoundError: no weather_CONUS_YYYYMMDD.nc files in ~/Downloads/mh_notebook_data/weather_CONUS_2024event"
   },
   {
    "key": "frp",
    "label": "Active fire (fire radiative power)",
-   "reason": "FileNotFoundError: no fires_analysis_grid_YYYYMMDD.nc files in /Users/nza/Downloads/mh_notebook_data/fires_analysis_grid_2024event"
+   "reason": "FileNotFoundError: no fires_analysis_grid_YYYYMMDD.nc files in ~/Downloads/mh_notebook_data/fires_analysis_grid_2024event"
   }
  ],
  "built": "2026-11-18T05:25Z"

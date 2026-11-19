@@ -4,14 +4,35 @@ A local browser app for exploring hourly hazard grids. Set a threshold for each 
 
 ## Quick start
 
+The built data for both events is committed in `app/data/`, so you only need Python's built-in web server:
+
 ```bash
 cd Projects/NASA-disasters-grid-resilience/hazard_explorer
-conda activate gdal_test                # any env with xarray, geopandas, scipy, pyproj
-python build_data.py                    # or: python build_data.py marapr_2023
 python -m http.server 8765 -d app       # then open http://localhost:8765
 ```
 
-`build_data.py` reads the same inputs as `notebooks/multihazard_arcgis_time_layers_v1.ipynb`, from `~/Downloads/mh_notebook_data/`. It writes `app/data/` (about 60 MB for the 2023 event), which git ignores. Rebuild whenever the inputs or `events.py` change. The first run also downloads Census state outlines (about 1 MB) into the same cache.
+To rebuild the data (after changing `events.py` or adding inputs), use any env with xarray, geopandas, scipy, pyproj and requests, for example the project's `src/environment.yml`:
+
+```bash
+python build_data.py                    # all events, or: python build_data.py marapr_2023
+```
+
+`build_data.py` reads the same inputs as `notebooks/multihazard_arcgis_time_layers_v1.ipynb`, from `~/Downloads/mh_notebook_data/` (see *Input data* below). It overwrites `app/data/` (about 80 MB in total). The first run also downloads Census state outlines (about 1 MB) into the same cache.
+
+## Input data
+
+Put these in `~/Downloads/mh_notebook_data/` (the path is set by `DATA_CACHE` in `events.py`). Running the notebook with `ALLOW_DOWNLOADS = True` fetches the public NOAA ones automatically.
+
+| Folder / file | Used for | Where it comes from |
+|---|---|---|
+| `weather_CONUS_2023event/weather_CONUS_YYYYMMDD.nc` | precipitation, gust, temperature, MESH hail, rotation, rainfall ARI | the team's daily MRMS/RTMA grids from `data_processing/get_aggregate_*_data.py` |
+| `fires_analysis_grid_2023event/fires_analysis_grid_YYYYMMDD.nc` | fire radiative power | the team's daily fire grids from `data_processing/` |
+| `mcgranaghan-rawdata.nc` | 2023 space weather (`Eh`) | R. McGranaghan's site product; ask the project team |
+| `noaa_geoe_2024event/*.nc` | 2024 space weather | NOAA SWPC empirical geoelectric field, `services.swpc.noaa.gov/netcdf/geoelectric/InterMagEarthScope/` |
+| `swdi_2024event/nx3hail_*.csv`, `nx3tvs_*.csv` | 2024 radar hail and tornado signatures | NOAA NCEI Severe Weather Data Inventory, `www.ncei.noaa.gov/swdiws/` |
+| `cb_2023_us_state_20m.zip` | state outlines and the CONUS mask | US Census cartographic boundaries (downloaded automatically) |
+
+The grid definition, `data/analysis_grid_CONUS_50km.nc`, is in the repository.
 
 ## What's in the app
 
@@ -66,4 +87,4 @@ For June 2024 (the V3 terrestrial hazards video), add an event with `start`/`end
 | `events.py` | Event and variable definitions, default thresholds |
 | `build_data.py` | Loads each variable onto the grid and writes `app/data/<event>/` |
 | `app/index.html`, `app/app.js`, `app/style.css` | The app: plain HTML/JS, no build step |
-| `app/data/` | Generated (`manifest.json`, one `<variable>.f32` per variable, mask, cell corners, state outlines) |
+| `app/data/` | Built by `build_data.py` and committed so the app runs without rebuilding (`manifest.json`, one `<variable>.f32` per variable, mask, cell corners, state outlines) |
