@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-hazard Explorer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Multi-hazard explorer</h1>
+  <label class="inline">Event <select id="event-select"></select></label>
+  <div class="seg" role="tablist" aria-label="View">
+    <button id="view-map" role="tab" aria-selected="true">Interactions map</button>
+    <button id="view-fields" role="tab" aria-selected="false">Variable fields</button>
+  </div>
+  <div class="spacer"></div>
+  <button id="cfg-save" title="Download thresholds and rules as JSON">Save settings</button>
+  <label class="button" title="Load thresholds and rules from a JSON file">Load settings<input id="cfg-load" type="file" accept=".json,application/json" hidden></label>
+  <button id="cfg-reset" title="Back to the event's default thresholds and rules">Reset</button>
+  <button id="export-geojson" title="Every flagged cell-hour as time-stamped polygons (opens in QGIS / ArcGIS)">Export flagged cells</button>
+  <button id="export-csv" title="One row per flagged episode">Export episodes</button>
+</header>
+
+<main class="layout">
+  <aside class="side left">
+    <section>
+      <div class="section-head">
+        <h2>Hazard thresholds</h2>
+        <label class="inline small"><input id="conus-only" type="checkbox" checked> CONUS only</label>
+      </div>
+      <p class="hint">A cell is <b>exceeding</b> when its hourly value passes the threshold. <i>Place-specific</i> compares each cell with its own percentile over this event window (not a climatology).</p>
+      <div id="var-list"></div>
+    </section>
+    <section>
+      <div class="section-head">
+        <h2>Interaction rules</h2>
+        <button id="rule-add" class="small">Add rule</button>
+      </div>
+      <p class="hint">A cell is <b>flagged</b> when enough of a rule's hazards exceed within its distance and time window of each other.</p>
+      <div id="rule-list"></div>
+    </section>
+  </aside>
+
+  <section class="center">
+    <div id="map-view" class="view">
+      <div class="map-toolbar">
+        <label class="inline">Background <select id="bg-select"></select></label>
+        <label class="inline"><input id="show-outlines" type="checkbox" checked> Exceedance outlines</label>
+        <label class="inline"><input id="show-fill" type="checkbox"> Fill exceedances</label>
+        <label class="inline"><input id="show-flags" type="checkbox" checked> Flagged cells</label>
+      </div>
+      <div class="map-wrap">
+        <canvas id="map" aria-label="Map of hazard exceedances and flagged interactions"></canvas>
+        <div id="legend" class="legend">
+          <div class="lg-head" title="Drag to move · double-click to reset">
+            <span class="lg-grip" aria-hidden="true">⠿</span>
+            <span id="lg-title" class="lg-title">Legend</span>
+            <button id="lg-toggle" class="icon-btn" aria-expanded="true" aria-label="Collapse legend">–</button>
+          </div>
+          <div id="lg-body"></div>
+        </div>
+      </div>
+    </div>
+    <div id="fields-view" class="view" hidden>
+      <div id="fields-grid" class="fields-grid"></div>
+    </div>
+
+    <div class="timebar">
+      <button id="t-prev" title="Previous hour (←)" aria-label="Previous hour">‹</button>
+      <button id="t-play" title="Play / pause (space)">Play</button>
+      <button id="t-next" title="Next hour (→)" aria-label="Next hour">›</button>
+      <input id="t-slider" type="range" min="0" max="0" value="0" aria-label="Time">
+      <output id="t-label"></output>
+      <label class="inline small">Speed <select id="t-speed">
+        <option value="1">1 h/s</option><option value="2">2 h/s</option><option value="4" selected>4 h/s</option>
+        <option value="8">8 h/s</option><option value="16">16 h/s</option></select></label>
+    </div>
+    <div class="timeline-wrap">
+      <canvas id="timeline" aria-label="Hourly count of exceeding and flagged cells per hazard and rule"></canvas>
+    </div>
+  </section>
+
+  <aside class="side right">
+    <section>
+      <h2>Flagged episodes</h2>
+      <p class="hint">Flagged cells connected in space and time. Click one to jump to its peak hour.</p>
+      <div id="episode-summary" class="small muted"></div>
+      <ol id="episode-list" class="episodes"></ol>
+    </section>
+    <section>
+      <h2>Cell detail</h2>
+      <p id="cell-hint" class="hint">Click a map cell to pin its hourly series.</p>
+      <div id="cell-detail"></div>
+    </section>
+    <section>
+      <h2>Data notes</h2>
+      <div id="data-notes" class="small"></div>
+    </section>
+  </aside>
+</main>
+
+<div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+<div id="loading" class="loading">Loading…</div>
+<script src="app.js"></script>
+</body>
+</html>
