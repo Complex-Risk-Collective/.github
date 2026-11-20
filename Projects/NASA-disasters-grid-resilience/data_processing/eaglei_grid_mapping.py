@@ -44,6 +44,8 @@ pandas/numpy).
 
 from __future__ import annotations
 
+import hashlib
+import json
 import zipfile
 from pathlib import Path
 from typing import Iterable, Optional
@@ -57,6 +59,8 @@ import pandas as pd
 # ------------------------
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+# Legacy helper/cache defaults stay coupled to the legacy grid. Production
+# passes the new grid explicitly to load_or_build_grid_mapping below.
 GRID_PATH_DEFAULT = REPO_ROOT / "data" / "analysis_grid_CONUS_50km.nc"
 
 EAGLEI_DIR_DEFAULT = Path(
@@ -86,7 +90,8 @@ COUNTY_ZIP_URL_TEMPLATE = (
 
 
 def normalize_fips(values: pd.Series, width: int) -> pd.Series:
-    return values.astype(str).str.extract(r"(\d+)", expand=False).str.zfill(width)
+    text = values.astype("string").str.strip().str.replace(r"\.0$", "", regex=True)
+    return text.where(text.str.fullmatch(r"\d{1," + str(width) + r"}", na=False)).str.zfill(width)
 
 
 # ------------------------
@@ -181,6 +186,11 @@ def build_grid_cell_polygons(grid_path: Path = GRID_PATH_DEFAULT):
 
     dx = float(np.nanmedian(np.abs(np.diff(x_values))))
     dy = float(np.nanmedian(np.abs(np.diff(y_values))))
+    for name, values, spacing in [("x", x_values, dx), ("y", y_values, dy)]:
+        if len(values) < 2 or not np.isfinite(values).all() or not np.allclose(np.diff(values), spacing):
+            raise ValueError(f"Grid {name} must be finite, increasing and regularly spaced.")
+    if lat.shape != (len(y_values), len(x_values)) or lon.shape != lat.shape:
+        raise ValueError("Grid latitude/longitude dimensions do not match x/y.")
 
     records = []
     geometries = []
@@ -349,5 +359,103 @@ def load_or_build_area_weighted_mapping(
     return mapping
 
 
+def grid_fingerprint(grid_path: Path) -> str:
+    """Content identity, not merely a filename or shape, for grid-bound caches."""
+    return hashlib.sha256(Path(grid_path).read_bytes()).hexdigest()
+
+
+def load_or_build_grid_mapping(
+    county_fips: Iterable[str],
+    grid_path: Path,
+    output_dir: Path,
+    county_cache_dir: Path = COUNTY_CACHE_DIR_DEFAULT,
+    force_rebuild: bool = False,
+) -> pd.DataFrame:
+    """Build intersections from geometry, never reuse old-grid index pairs.
+
+    Only the contiguous 48 states and DC are included. No nearest-center
+    fallback is used. Positive intersection areas are normalized over the
+    mapped portion of a county (areal allocation, not customer locations).
+    County coverage fractions and excluded counties are exported explicitly.
+    """
+    import geopandas as gpd
+
+    grid_path, output_dir = Path(grid_path), Path(output_dir)
+    normalized = normalize_fips(pd.Series(list(county_fips), dtype="string"), 5)
+    if normalized.isna().any():
+        raise ValueError("Invalid county FIPS supplied for mapping.")
+    requested = sorted(set(normalized))
+    identity = {
+        "mapping_version": "positive_area_conus_v1",
+        "grid_sha256": grid_fingerprint(grid_path),
+        "county_fips": requested,
+        "county_vintages": COUNTY_SHAPEFILE_VINTAGES,
+        "allocation": "intersection area normalized over mapped county area; no nearest fallback",
+    }
+    csv_path = output_dir / "eaglei_county_to_grid_area_weighted.csv"
+    manifest_path = csv_path.with_suffix(".manifest.json")
+    if csv_path.exists() and manifest_path.exists() and not force_rebuild:
+        saved = json.loads(manifest_path.read_text())
+        if saved.get("identity") == identity and saved.get("csv_sha256") == grid_fingerprint(csv_path):
+            mapping = pd.read_csv(csv_path, dtype={"county_fips": str, "state_fips": str})
+            _validate_grid_mapping(mapping)
+            print(f"Loaded grid-verified county mapping: {csv_path}", flush=True)
+            return mapping
+        raise ValueError(f"Mapping cache identity changed: {csv_path}; select a new output directory or rebuild explicitly.")
+
+    # Census state codes 01..56 contain the 48 contiguous states plus DC,
+    # excluding Alaska (02) and Hawaii (15); territories use codes >=60.
+    eligible = [fips for fips in requested if 1 <= int(fips[:2]) <= 56 and fips[:2] not in {"02", "15"}]
+    counties = load_county_geometries_for_fips(eligible, cache_dir=county_cache_dir)
+    grid = build_grid_cell_polygons(grid_path).reset_index(drop=True)
+    from pyproj import CRS
+    if CRS(grid.crs) != CRS("EPSG:5070"):
+        raise ValueError("County area allocation currently requires the EPSG:5070 analysis grid.")
+    counties = counties.to_crs(grid.crs)
+    if not counties.geometry.is_valid.all():
+        raise ValueError("Invalid county geometry; repair/source review required before allocation.")
+    counties["county_area_km2"] = counties.geometry.area / 1e6
+    pairs = gpd.sjoin(counties, grid[["grid_y", "grid_x", "geometry"]], how="inner", predicate="intersects")
+    areas = [row.geometry.intersection(grid.geometry.iloc[int(row.index_right)]).area / 1e6
+             for row in pairs.itertuples()]
+    pairs["intersection_area_km2"] = areas
+    pairs = pairs.loc[pairs.intersection_area_km2 > 0].copy()
+    mapped_area = pairs.groupby("county_fips").intersection_area_km2.transform("sum")
+    pairs["weight"] = pairs.intersection_area_km2 / mapped_area
+    pairs["county_grid_coverage_fraction"] = mapped_area / pairs.county_area_km2
+    pairs["mapping_method"] = INTERSECTS_METHOD
+    columns = ["county_fips", "state_fips", "county_name", "grid_y", "grid_x", "weight",
+               "intersection_area_km2", "county_area_km2", "county_grid_coverage_fraction", "mapping_method"]
+    mapping = pd.DataFrame(pairs[columns]).sort_values(["county_fips", "grid_y", "grid_x"]).reset_index(drop=True)
+    _validate_grid_mapping(mapping)
+    found = set(counties.county_fips)
+    mapped = set(mapping.county_fips)
+    excluded = pd.DataFrame([
+        {"county_fips": fips, "reason": "outside_CONUS" if fips not in eligible else
+         ("county_geometry_missing" if fips not in found else "no_positive_grid_overlap")}
+        for fips in requested if fips not in mapped
+    ], columns=["county_fips", "reason"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+    mapping.to_csv(csv_path, index=False)
+    excluded.to_csv(output_dir / "eaglei_unmapped_counties.csv", index=False)
+    manifest_path.write_text(json.dumps({"identity": identity, "csv_sha256": grid_fingerprint(csv_path),
+                                       "grid_source": str(grid_path.resolve()), "mapped_counties": len(mapped),
+                                       "mapping_rows": len(mapping), "excluded_counties": len(excluded)}, indent=2))
+    print(f"Built county mapping: {len(mapped):,} counties, {len(mapping):,} intersections, "
+          f"{len(excluded)} excluded; {csv_path}", flush=True)
+    return mapping
+
+
+def _validate_grid_mapping(mapping: pd.DataFrame) -> None:
+    if mapping.empty:
+        raise ValueError("No positive county-grid intersections.")
+    if mapping[["county_fips", "grid_y", "grid_x"]].duplicated().any():
+        raise ValueError("Duplicate county-grid intersections.")
+    if not np.isfinite(mapping.weight).all() or not (mapping.weight > 0).all():
+        raise ValueError("County weights must be positive and finite.")
+    if not np.allclose(mapping.groupby("county_fips").weight.sum(), 1, atol=1e-8, rtol=0):
+        raise ValueError("County area weights do not sum to one.")
+
+
 if __name__ == "__main__":
-    load_or_build_area_weighted_mapping()
+    raise SystemExit("Use eaglei_grid_pipeline.py to build a grid-verified mapping and annual outputs.")

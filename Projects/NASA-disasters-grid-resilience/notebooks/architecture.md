@@ -53,6 +53,7 @@ The intended future name for the current area is `terrestrial_weather_data_proce
 - `data_processing/get_aggregate_rtma_data.py` performs the corresponding RTMA GRIB2 loading and gridding.
 - `data_processing/pipeline.py` orchestrates one-day processing: SWDI, MRMS, and RTMA are merged with xarray and written as compressed daily NetCDF files.
 - `data_processing/aggregate_eagle-i.py` is an impact-data utility currently colocated with the terrestrial-weather code; it should move to a grid-impact area when the deferred restructure occurs. `aggregate_swdi.py` belongs to the current terrestrial-weather area. Other processing scripts are exploratory or support specific data sources and should be read before reuse.
+- `data_processing/geoe_data.py` is the shared NOAA GeoE daily-file loader (`open_geoe`, `select_geoe_files`). It decodes the seconds-of-day time convention, prefers per-day cleaned reprocessings (e.g. `NOAA_geoE/2024-2025`) over legacy files, and never concatenates model versions whose site grids differ; dropped days are reported in a provenance mapping. Covered by `tests/test_geoe_data.py` and used by the May 2024 storm notebook.
 
 The current pipeline uses `xr.merge(..., compat="override")`, renames SWDI dimensions to `time`, `y`, and `x`, and writes files named `weather_CONUS_YYYYMMDD.nc`. It currently contains a machine-specific `PATH` (`/Users/marchett/Documents/Disasters/data`) and a June 2024 example date range. This is an important implementation constraint, not a project-wide configuration contract.
 
