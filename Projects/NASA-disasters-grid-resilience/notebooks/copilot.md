@@ -28,6 +28,7 @@ The implementation is research software organized around a shared CONUS 50 km gr
 - Normalize Eagle-I county FIPS and Census/TIGER GEOID as strings, zero-padded to five characters, before merging.
 - Treat timestamps as a scientific input. Check UTC versus local time, epoch decoding, daylight-saving transitions, and the time window used by each source.
 - Avoid loading long MRMS/RTMA periods into memory at once. Prefer daily processing, chunking, or incremental outputs and report resource implications.
+- When extracting descriptors or features via long loops over large dask-backed caches (GeoE now; extreme wind/temperature/precipitation later), use a checkpointed/resumable pattern that flushes partial results to disk at a fixed interval. A full pass can run for hours; assume interruption is the normal case, not the exception. Delete or rename the checkpoint file before changing subsample size, cap, or random seed -- resuming is implemented by counting already-written rows, not by validating that those rows match the current run's parameters, so a stale checkpoint will silently produce a mismatched file.
 - Do not delete raw or cached data to make a workflow pass. Explain cleanup behavior when a processing function removes downloaded files.
 - Use absolute external paths exactly as documented when working on this machine, but identify them as non-portable and do not invent replacements.
 - Do not run long downloads, full-year generation, or expensive tuning sweeps without confirming the intended date range and input coverage.
@@ -36,6 +37,7 @@ The implementation is research software organized around a shared CONUS 50 km gr
 
 - Separate confirmed observations, provisional interpretations, and open design questions.
 - For hazard thresholds, state the variable, temporal aggregation, spatial baseline, threshold rule, and reason for selection.
+- When a descriptor set includes both threshold-independent summary statistics (e.g. max/p95/mean) and threshold-dependent statistics (e.g. duration-above-threshold, integrated exposure, active-area fraction), extract the threshold-independent ones once per window and sweep candidate thresholds cheaply afterward in pure numpy, rather than re-extracting from the cache for every candidate threshold.
 - For network impacts, distinguish a hazard mask, a projection onto network elements, an impact observation, and a causal or predictive score. These are different objects.
 - Validate joins and alignment with counts, date ranges, coordinate shapes, missingness, and a small visual or tabular spot check.
 - Preserve provenance: cite the source file or URL, local path, date window, execution state, and output artifact where practical.
@@ -63,7 +65,7 @@ When proposing a risk surface for voltage/frequency instability, outage, islandi
 
 ## Current Boundaries
 
-The canonical 50 km grid is established for current work, but the final multi-hazard score and network projection method remain open. Wildfire source selection and stakeholder product validation also remain provisional or open. As of 2026-08-26, missing 2024 terrestrial-weather and geoelectric coverage, plus absent 2025 files, blocks an unqualified full 2024-2025 MYRIAD run.
+The canonical 50 km grid is established for current work, but the final multi-hazard score and network projection method remain open. Wildfire source selection and stakeholder product validation also remain provisional or open. The 2026-08-26 coverage gap that previously blocked an unqualified full 2024-2025 MYRIAD run (missing 2024 terrestrial-weather and geoelectric days, absent 2025 files) has since been filled; see `architecture.md`'s Known Architectural Constraints and `decisions.md` for the resolved coverage record.
 
 ## Natural Breakpoints
 

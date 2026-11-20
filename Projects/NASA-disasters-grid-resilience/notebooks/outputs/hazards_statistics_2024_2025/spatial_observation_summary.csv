@@ -1,0 +1,6 @@
+product,cells_with_observations,total_cell_days,max_count_per_cell,metric
+wildfire_frp,3818,2604390,731,cell-days
+t2m,5720,4181320,731,cell-days
+i10fg,5720,4181320,731,cell-days
+MultiSensor_QPE_01H_Pass2_00.00,5720,4181320,731,cell-days
+space_weather_valid_points,2979,2292576,3340,point observations

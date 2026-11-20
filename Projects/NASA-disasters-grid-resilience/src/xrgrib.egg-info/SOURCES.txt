@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/xrgrib/__init__.py
+src/xrgrib/backend.py
+src/xrgrib.egg-info/PKG-INFO
+src/xrgrib.egg-info/SOURCES.txt
+src/xrgrib.egg-info/dependency_links.txt
+src/xrgrib.egg-info/entry_points.txt
+src/xrgrib.egg-info/requires.txt
+src/xrgrib.egg-info/top_level.txt

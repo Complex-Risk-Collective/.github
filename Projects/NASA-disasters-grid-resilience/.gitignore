@@ -1,5 +1,9 @@
 
 
 notebooks/notebooks/
-
+__pycache__/
+*.pyc
+notebooks/_cache/
+notebooks/outputs/
+/outputs/
 

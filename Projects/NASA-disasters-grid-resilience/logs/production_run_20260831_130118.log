@@ -1,0 +1,20 @@
+[2026-08-31 13:01:18,288] ======================================================================
+[2026-08-31 13:01:18,288] PRODUCTION PIPELINE START: 2024-01-01 to 2025-12-31 (full period)
+[2026-08-31 13:01:18,288] ======================================================================
+[2026-08-31 13:01:18,288] Time window: 2024-01-01 to 2025-12-31
+[2026-08-31 13:01:18,288] Output directory: /Users/ryanmc/Documents/NASA_JPL/Projects/NaturalHazards/NASA ROSES Disasters 2025-2027/data/MYRIAD_events_output/production/myriad_conus_20240101_20251231
+[2026-08-31 13:01:18,288] Hazards in scope: wildfire, heatwave, coldwave, extreme_heat, extreme_cold, extreme_wind, extreme_precip, space_weather_extreme, extreme_wind_era5
+[2026-08-31 13:01:18,288] Excluded (v2 data-quality issues):
+[2026-08-31 13:01:18,288]   hail: MESH/MAXSIZE unusable: MAXSIZE all-missing, MESH sentinel-contaminated and diluted by 50 km mean binning
+[2026-08-31 13:01:18,288]   lightning: NLDN density has no positive values in the holdings (max exactly 0.0)
+[2026-08-31 13:01:18,288]   drought_proxy: 15th percentile of an ~87%-zero hourly field is degenerate; produced zero events
+[2026-08-31 13:01:18,288] ======================================================================
+[2026-08-31 13:01:18,289] Step 1/6: Building file manifests
+[2026-08-31 13:01:18,289] ======================================================================
+[2026-08-31 13:01:18,321]   wildfire files: 731
+[2026-08-31 13:01:18,321]   terrestrial weather files: 731
+[2026-08-31 13:01:18,321]   space weather files: 677
+[2026-08-31 13:01:18,321] Step 1/6 complete in 0s
+[2026-08-31 13:01:18,321] ======================================================================
+[2026-08-31 13:01:18,321] Step 2/6: Loading terrestrial + space weather stacks and building hazard masks
+[2026-08-31 13:01:18,321] ======================================================================

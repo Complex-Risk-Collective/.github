@@ -4,6 +4,12 @@
 Created on Wed Feb 11 16:36:12 2026
 
 @author: marchett
+
+Historical, hard-coded 2023 case-study script; NOT the 2024–2025 production
+entrypoint. Use eaglei_grid_pipeline.py for grid-verified area allocation at
+native 15-minute cadence. This legacy script sums snapshots within hours and
+uses grid-center containment; it must not be used to regenerate the new-grid
+annual products.
 """
 
 import os
